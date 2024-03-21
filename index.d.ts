@@ -23,7 +23,7 @@ export declare class PuzzleMessage<
 
   constructor(fn: Event, data?: Data);
 
-  static from(message: string): void;
+  static from(message: string): PuzzleMessage<PuzzleEvent>;
 
   static onFailure(options?: FailureOptions): void;
 
