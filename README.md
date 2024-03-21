@@ -56,7 +56,7 @@ export default MyPuzzle;
 
 Once you have created your puzzle, you can package it up and submit it to the Drunk Mode app. 
 
-First compile your puzzle into a single js or html file called `index.js` or `index.html`. Create a new directory and place your compiled puzzle file in the directory. Then create a `puzzle.json` file in the same directory with the following format:
+First build your puzzle which should be an `index.html` file. Create a directory that contains your `index.html` file and any other root level files or directories. Create a `puzzle.json` file in the same directory with the following format:
 
 ```json
 {
@@ -64,7 +64,6 @@ First compile your puzzle into a single js or html file called `index.js` or `in
   "displayName": "My Puzzle",
   "description": "This is a description of my puzzle.",
   "version": "1.0.0",
-  "main": "index.js"
 }
 ```
   

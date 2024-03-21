@@ -18,9 +18,9 @@ export class PuzzleMessage {
   static from(message) {
     const { fn, data } = JSON.parse(message);
     if (fn === 'success') {
-      return new PuzzleMessage < 'success' > (fn, data);
+      return new PuzzleMessage(fn, data);
     } else if (fn === 'failure') {
-      return new PuzzleMessage < 'failure' > (fn, data);
+      return new PuzzleMessage(fn, data);
     }
     throw new Error('Unexpected event type');
   }
