@@ -1,0 +1,20 @@
+{
+  "name": "drunkmode-puzzles",
+  "version": "0.1.0",
+  "description": "Library used for creating custom puzzles for the Drunk Mode app",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noodleofdeath/drunkmode-puzzles.git"
+  },
+  "keywords": [
+    "drunkmode",
+    "puzzles"
+  ],
+  "author": "NoodleOfDeath",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/noodleofdeath/drunkmode-puzzles/issues"
+  },
+  "homepage": "https://github.com/noodleofdeath/drunkmode-puzzles#readme"
+}
