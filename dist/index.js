@@ -20,25 +20,26 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // index.ts
 var drunkmode_puzzles_exports = {};
 __export(drunkmode_puzzles_exports, {
+  PuzzleEnv: () => PuzzleEnv,
   PuzzleMessage: () => PuzzleMessage
 });
 module.exports = __toCommonJS(drunkmode_puzzles_exports);
 var PuzzleMessage = class _PuzzleMessage {
-  fn;
+  event;
   data;
   get stringified() {
     return JSON.stringify({
-      fn: this.fn,
+      event: this.event,
       data: this.data
     });
   }
-  constructor(fn, data) {
-    this.fn = fn;
+  constructor(event, data) {
+    this.event = event;
     this.data = data;
   }
   static from(message) {
-    const { fn, data } = JSON.parse(message);
-    return new _PuzzleMessage(fn, data);
+    const { event, data } = JSON.parse(message);
+    return new _PuzzleMessage(event, data);
   }
   /** 
    * Call this method when the user has changed a starting 
@@ -50,6 +51,7 @@ var PuzzleMessage = class _PuzzleMessage {
    * 
    * @param data the configuration data
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static onConfig(data) {
     new _PuzzleMessage("config", data).post();
   }
@@ -60,6 +62,7 @@ var PuzzleMessage = class _PuzzleMessage {
    * 
    * @param data saved progress data
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static onProgress(data) {
     new _PuzzleMessage("progress", data).post();
   }
@@ -87,7 +90,32 @@ var PuzzleMessage = class _PuzzleMessage {
     }
   }
 };
+var PuzzleEnv = class {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  store;
+  get preview() {
+    return this.store.preview;
+  }
+  get config() {
+    return this.store.config;
+  }
+  get data() {
+    return this.store.data;
+  }
+  constructor() {
+    try {
+      this.store = { ...window.DrunkMode };
+    } catch (e) {
+      this.store = {
+        preview: false,
+        config: {},
+        data: {}
+      };
+    }
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  PuzzleEnv,
   PuzzleMessage
 });

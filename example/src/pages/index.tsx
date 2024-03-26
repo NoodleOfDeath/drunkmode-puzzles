@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PuzzleMessage } from 'drunkmode-puzzles';
+import { PuzzleEnv, PuzzleMessage } from 'drunkmode-puzzles';
 import styled from 'styled-components';
 
 const StyledMain = styled('main')<{ height: number }>`
@@ -40,9 +40,11 @@ type Point = {
 
 export default function Home() {
   
+  const [env, setEnv] = React.useState<PuzzleEnv>();
   const [size, setSize] = React.useState(ZERO_SIZE);
   const [coords, setCoords] = React.useState<Point>();
   const [yesCount, setYesCount] = React.useState(0);
+  
   const yesButtonRef = React.useRef<HTMLButtonElement>(null);
   
   const moveButton = React.useCallback((size: Size) => {
@@ -80,13 +82,20 @@ export default function Home() {
 
   React.useEffect(() => {
     if (yesCount > 0 && yesCount % 5 === 0) {
-      PuzzleMessage.onFailure({ message: 'Bruh, stop cappin\'! You know you ain\'t sober!' });
+      PuzzleMessage.onFailure({ message: 'Quit cappin\'! You know you ain\'t sober!' });
     }
   }, [yesCount]);
   
+  React.useEffect(() => {
+    const env = new PuzzleEnv();
+  }, []);
+
   return (
     <StyledMain height={ size.height }>
       <StyledContainer>
+        {env?.preview && (
+          <div>Select a difficulty level or change the size of the puzzle.</div>
+        )}
         <StyledTitle>
           Are you sober?
         </StyledTitle>

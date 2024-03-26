@@ -13,27 +13,28 @@ export type PuzzleEvent = 'config' | 'failure' | 'progress' | 'success';
 
 export class PuzzleMessage<
   Event extends PuzzleEvent,
-  Data = Event extends 'success' ? SuccessOptions : FailureOptions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Data = Event extends 'success' ? SuccessOptions : Event extends 'failure' ? FailureOptions : any
 > {
 
-  private fn: Event;
-  private data?: Data;
+  public event: Event;
+  public data?: Data;
 
   public get stringified() {
     return JSON.stringify({
-      fn: this.fn,
+      event: this.event,
       data: this.data
     });
   }
 
-  public constructor(fn: Event, data?: Data) {
-    this.fn = fn;
+  public constructor(event: Event, data?: Data) {
+    this.event = event;
     this.data = data;
   }
 
   public static from(message: string): PuzzleMessage<PuzzleEvent> {
-    const { fn, data } = JSON.parse(message);
-    return new PuzzleMessage(fn, data);
+    const { event, data } = JSON.parse(message);
+    return new PuzzleMessage(event, data);
   }
 
   /** 
@@ -46,6 +47,7 @@ export class PuzzleMessage<
    * 
    * @param data the configuration data
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static onConfig(data?: any) {
     (new PuzzleMessage('config', data)).post();
   }
@@ -57,6 +59,7 @@ export class PuzzleMessage<
    * 
    * @param data saved progress data
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static onProgress(data?: any) {
     (new PuzzleMessage('progress', data)).post();
   }
@@ -84,6 +87,37 @@ export class PuzzleMessage<
       (window as any).ReactNativeWebView.postMessage(this.stringified);
     } catch (e) {
       console.warn(e);
+    }
+  }
+
+}
+
+export class PuzzleEnv {
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  store: any;
+
+  get preview() {
+    return this.store.preview;
+  }
+
+  get config() {
+    return this.store.config;
+  }
+
+  get data() {
+    return this.store.data;
+  }
+
+  constructor() {
+    try {
+      this.store = { ...(window as any).DrunkMode };
+    } catch (e) {
+      this.store = {
+        preview: false,
+        config: {},
+        data: {},
+      }
     }
   }
 

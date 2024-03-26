@@ -34,15 +34,40 @@ First create a web app that imports the `PuzzleMessage` class from the `drunkmod
 ```typescript
 import React from 'react';
 
-import { PuzzleMessage } from 'drunkmode-puzzles';
+import { PuzzleEnv, PuzzleMessage } from 'drunkmode-puzzles';
 
 const MyPuzzle = () => {
+  
+  const [env, setEnv] = React.useState<PuzzleEnv>();
+  
+  // load configs
+  React.useEffect(() => {
+    setEnv(new PuzzleEnv());
+  }, []);
+  
   return (
     <div>
-      <button onClick={() => PuzzleMessage.onSuccess('You solved the puzzle!')}>
+      {env?.preview && (
+        <div>
+          Choose a difficulty
+          <button onClick={ () => PuzzleMessage.onConfig({
+            ...env?.config,
+            difficulty: 'easy',
+          }) }>
+            Easy Mode
+          </button>
+          <button onClick={ () => PuzzleMessage.onConfig({
+            ...env?.config,
+            difficulty: 'hard',
+          }) }>
+            Hard Mode
+          </button>
+        </div>
+      )}
+      <button onClick={() => PuzzleMessage.onSuccess({ message: 'You solved the puzzle!' })}>
         Solve Puzzle
       </button>
-      <button onClick={() => PuzzleMessage.onFailure('You failed to solve the puzzle!')}>
+      <button onClick={() => PuzzleMessage.onFailure({ message: 'You failed the puzzle!' })}>
         Fail Puzzle
       </button>
     </div>
