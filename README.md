@@ -50,16 +50,20 @@ const MyPuzzle = () => {
       {env?.preview && (
         <div>
           Choose a difficulty
-          <button onClick={ () => PuzzleMessage.onConfig({
-            ...env?.config,
-            difficulty: 'easy',
-          }) }>
+          <button onClick={ () => {
+            PuzzleMessage.onConfig({
+              ...env?.config,
+              difficulty: 'easy',
+            });
+          } }>
             Easy Mode
           </button>
-          <button onClick={ () => PuzzleMessage.onConfig({
-            ...env?.config,
-            difficulty: 'hard',
-          }) }>
+          <button onClick={ {
+            () => PuzzleMessage.onConfig({
+              ...env?.config,
+              difficulty: 'hard',
+            });
+          } }>
             Hard Mode
           </button>
         </div>
@@ -85,7 +89,9 @@ First build your puzzle which should be an `index.html` file. Create a directory
 
 ```json
 {
-  "name": "my-puzzle",
+  "name": "com.company.product.MyPuzzle",
+  "author": "My Name",
+  "icon": "puzzle", // icon name from https://material.io/resources/icons/
   "displayName": "My Puzzle",
   "description": "This is a description of my puzzle.",
   "version": "1.0.0",
