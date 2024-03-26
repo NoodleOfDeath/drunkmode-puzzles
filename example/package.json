@@ -43,8 +43,8 @@
   "scripts": {
     "dev": "next dev -p 6969",
     "start": "next start",
-    "build": "next build",
-    "export": "next build && next export && tsx postexport.ts",
+    "build": "yarn format && next build",
+    "export": "yarn build && next export && tsx postexport.ts",
     "test": "next test",
     "eject": "next eject",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
