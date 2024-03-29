@@ -1,3 +1,104 @@
+
+
+const pathJoin = (a: string, b: string) => {
+  return a + (a.endsWith('/') ? '' : '/') + b;
+}
+
+// from react-native
+export type StatResult = {
+  name: string | undefined // The name of the item TODO: why is this not documented?
+  path: string // The absolute path to the item
+  size: number // Size in bytes
+  mode: number // UNIX file mode
+  ctime: number // Created date
+  mtime: number // Last modified date
+  originalFilepath: string // In case of content uri this is the pointed file path, otherwise is the same as path
+  isFile: () => boolean // Is the file just a file?
+  isDirectory: () => boolean // Is the file a directory?
+}
+
+export type PuzzlePackageLoader = {
+  stat: (path: string) => Promise<StatResult>;
+  readFile: (path: string) => Promise<string>;
+}
+
+export type PuzzlePackageProps = {
+  name: string;
+  icon?: string;
+  version?: string;
+  author?: string;
+  displayName: string;
+  description?: string;
+  instructions?: string;
+  html?: string;
+  baseUrl: string;
+  loader: PuzzlePackageLoader;
+};
+
+export class PuzzlePackage implements PuzzlePackageProps {
+
+  name: string;
+  icon?: string;
+  version?: string;
+  author?: string;
+  displayName: string;
+  description?: string;
+  instructions?: string;
+  html?: string;
+  baseUrl: string;
+
+  loader: PuzzlePackageLoader;
+
+  constructor({
+    name,
+    icon,
+    version,
+    author,
+    displayName,
+    description,
+    instructions,
+    html,
+    baseUrl,
+    loader,
+  }: PuzzlePackageProps) {
+    this.name = name;
+    this.icon = icon;
+    this.version = version;
+    this.author = author;
+    this.displayName = displayName;
+    this.description = description;
+    this.instructions = instructions;
+    this.html = html;
+    this.baseUrl = baseUrl;
+    this.loader = loader;
+  }
+
+  static async from(bundlePath: string, loader: PuzzlePackageLoader) {
+    const bundle = await loader.stat(bundlePath);
+    if (bundle.isFile()) {
+      throw new Error('Bundle is not a directory');
+    }
+    const info = await loader.stat(pathJoin(bundlePath, 'puzzle.json'));
+    if (info.isDirectory()) {
+      throw new Error('Puzzle info is not a file');
+    }
+    const json = JSON.parse(await loader.readFile(info.path));
+    return new this({
+      ...json,
+      baseUrl: bundlePath,
+      loader,
+    });
+  }
+
+  async loaded() {
+    const uri = pathJoin(this.baseUrl, 'index.html');
+    const html = await this.loader.readFile(uri);
+    this.html = html;
+    return this;
+  }
+
+}
+
 export type MessageOptions = {
   message?: string;
   title?: string;
@@ -55,7 +156,8 @@ export class PuzzleMessage<
   /**
    * Call this method when the user has made progress on the puzzle.
    * This data is saved and will be injected into the puzzle when it
-   * is loaded.
+   * is loaded. When the puzzle is completed, this data will be
+   * cleared.
    * 
    * @param data saved progress data
    */
@@ -86,6 +188,7 @@ export class PuzzleMessage<
     try {
       (window as any).ReactNativeWebView.postMessage(this.stringified);
     } catch (e) {
+      console.warn('Looks like you are not in a WebView');
       console.warn(e);
     }
   }
@@ -122,3 +225,16 @@ export class PuzzleEnv {
   }
 
 }
+
+export type PuzzleProps = {
+  preview?: boolean;
+  startFresh?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data?: any;
+  onConfig?: (config?: any) => void;
+  onProgress?: (progress?: any) => void;
+  onFailure: (failure?: FailureOptions) => void;
+  onSuccess: (success?: SuccessOptions) => void;
+};

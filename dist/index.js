@@ -21,9 +21,70 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var drunkmode_puzzles_exports = {};
 __export(drunkmode_puzzles_exports, {
   PuzzleEnv: () => PuzzleEnv,
-  PuzzleMessage: () => PuzzleMessage
+  PuzzleMessage: () => PuzzleMessage,
+  PuzzlePackage: () => PuzzlePackage
 });
 module.exports = __toCommonJS(drunkmode_puzzles_exports);
+var pathJoin = (a, b) => {
+  return a + (a.endsWith("/") ? "" : "/") + b;
+};
+var PuzzlePackage = class {
+  name;
+  icon;
+  version;
+  author;
+  displayName;
+  description;
+  instructions;
+  html;
+  baseUrl;
+  loader;
+  constructor({
+    name,
+    icon,
+    version,
+    author,
+    displayName,
+    description,
+    instructions,
+    html,
+    baseUrl,
+    loader
+  }) {
+    this.name = name;
+    this.icon = icon;
+    this.version = version;
+    this.author = author;
+    this.displayName = displayName;
+    this.description = description;
+    this.instructions = instructions;
+    this.html = html;
+    this.baseUrl = baseUrl;
+    this.loader = loader;
+  }
+  static async from(bundlePath, loader) {
+    const bundle = await loader.stat(bundlePath);
+    if (bundle.isFile()) {
+      throw new Error("Bundle is not a directory");
+    }
+    const info = await loader.stat(pathJoin(bundlePath, "puzzle.json"));
+    if (info.isDirectory()) {
+      throw new Error("Puzzle info is not a file");
+    }
+    const json = JSON.parse(await loader.readFile(info.path));
+    return new this({
+      ...json,
+      baseUrl: bundlePath,
+      loader
+    });
+  }
+  async loaded() {
+    const uri = pathJoin(this.baseUrl, "index.html");
+    const html = await this.loader.readFile(uri);
+    this.html = html;
+    return this;
+  }
+};
 var PuzzleMessage = class _PuzzleMessage {
   event;
   data;
@@ -58,7 +119,8 @@ var PuzzleMessage = class _PuzzleMessage {
   /**
    * Call this method when the user has made progress on the puzzle.
    * This data is saved and will be injected into the puzzle when it
-   * is loaded.
+   * is loaded. When the puzzle is completed, this data will be
+   * cleared.
    * 
    * @param data saved progress data
    */
@@ -86,6 +148,7 @@ var PuzzleMessage = class _PuzzleMessage {
     try {
       window.ReactNativeWebView.postMessage(this.stringified);
     } catch (e) {
+      console.warn("Looks like you are not in a WebView");
       console.warn(e);
     }
   }
@@ -117,5 +180,6 @@ var PuzzleEnv = class {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   PuzzleEnv,
-  PuzzleMessage
+  PuzzleMessage,
+  PuzzlePackage
 });

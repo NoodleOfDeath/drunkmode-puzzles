@@ -1,0 +1,8 @@
+{
+  "name": "app.drunkmode.DrunkMode.sudoku",
+  "version": "1.0.0",
+  "icon": "numeric-9-box-outline",
+  "displayName": "Sudoku",
+  "description": "Standard sudoku puzzle with various difficulty levels",
+  "author": "DrunkMode"
+}
