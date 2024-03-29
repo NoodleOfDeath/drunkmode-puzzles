@@ -18,11 +18,18 @@ export type SudokuPuzzleProps = PuzzleProps & {
 
 const StyledDifficulties = styled.div`
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   gap: 1rem;
+  padding: 1rem;
+  align-self: center;
 `;
 
 const StyledButton = styled.button`
-
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  border-radius: 1rem;
 `;
 
 export const SudokuPuzzle = ({
@@ -69,7 +76,7 @@ export const SudokuPuzzle = ({
   
   return (
     <React.Fragment>
-      {props.preview && (
+      {props.preview || true && (
         <StyledDifficulties>
           {['easy', 'medium', 'hard'].map((diff) => (
             <StyledButton
