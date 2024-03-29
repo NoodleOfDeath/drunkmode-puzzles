@@ -38,7 +38,7 @@ export const NumberSelector = ({
             style={ { opacity: i > 0 && !remainingNumbers.includes(i) ? 0.5 : 1 } }
             key={ `number-${value}` }
             value={ value ? value : '' }
-            onSelect={ (value) => i > 0 && remainingNumbers.includes(i) && onSelect?.(value as SudokuValue) }>
+            onSelect={ (value) => (i === 0 || (i > 0 && remainingNumbers.includes(i))) && onSelect?.(value as SudokuValue) }>
             { value ? value : '⌫' }
           </Cell>
         );

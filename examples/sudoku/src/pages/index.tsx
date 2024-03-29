@@ -46,6 +46,7 @@ export default function Home() {
   
   React.useEffect(() => {
     const env = new PuzzleEnv();
+    setEnv(env);
   }, []);
 
   return (
