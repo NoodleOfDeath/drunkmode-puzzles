@@ -3,7 +3,7 @@ import React from 'react';
 import { PuzzleProps } from 'drunkmode-puzzles';
 import styled from 'styled-components';
 
-import { Board } from './Board';
+import { Board, BoardRef } from './Board';
 import { generateSudokuPuzzle } from './utils';
 
 export type SudokuValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -13,8 +13,13 @@ export type SudokuGrid = SudokuValue[][];
 export type SudokuPuzzleProps = PuzzleProps & {
   values?: SudokuGrid;
   startingValues?: SudokuGrid;
-  solution?: SudokuGrid;
 };
+
+const StyledPuzzle = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
 
 const StyledDifficulties = styled.div`
   display: flex;
@@ -32,24 +37,40 @@ const StyledButton = styled.button`
   border-radius: 1rem;
 `;
 
+const StyledRow = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+`;
+
 export const SudokuPuzzle = ({
   startFresh,
   config,
   data,
   values = [],
   startingValues = [],
-  solution = [],
   onConfig,
   ...props
 }: SudokuPuzzleProps) => {
   
-  const { difficulty: difficulty0 = 'easy' } = { ...config };
-  
-  const [difficulty, setDifficulty] = React.useState(difficulty0);
+  const [difficulty, setDifficulty] = React.useState(config?.difficulty ?? 'easy');
   const [loaded, setLoaded] = React.useState(false);
-  const [puzzle, setPuzzle] = React.useState<ReturnType<typeof generateSudokuPuzzle> & { values?: SudokuGrid }>({
-    solution, startingValues, values, 
-  });
+  const [puzzle, setPuzzle] = React.useState<ReturnType<typeof generateSudokuPuzzle>>({ startingValues, values });
+  
+  const boardRef = React.useRef<BoardRef>(null);
+  
+  const handleRestart = React.useCallback(() => {
+    if (window.confirm('Are you sure you want to reset your progress? This cannot be undone')) {
+      boardRef.current?.reset();
+    }
+  }, []);
+  
+  const handleNewGame = React.useCallback(() => {
+    if (window.confirm('Are you sure you want to start a new game? You will lose all curren progress')) {
+      setPuzzle(generateSudokuPuzzle({ difficulty }));
+    }
+  }, [difficulty]);
   
   React.useEffect(() => {
     if (startFresh) {
@@ -58,25 +79,27 @@ export const SudokuPuzzle = ({
     if (loaded) {
       return;
     }
-    setLoaded(true);
     if (data) {
       try {
-        const {
-          startingValues, solution, values, 
-        } = JSON.parse(data);
-        setPuzzle({
-          solution, startingValues, values, 
-        });
+        console.log(data);
+        const { startingValues, values } = typeof data === 'string' ? JSON.parse(data) : data;
+        setPuzzle({ startingValues, values });
       } catch (e) {
         alert('there was an issue loading puzzle progress');
         setPuzzle(generateSudokuPuzzle({ difficulty }));
+      } finally {
+        setLoaded(true);
       }
     }
   }, [startFresh, difficulty, data, loaded]);
   
+  React.useEffect(() => {
+    setDifficulty(config?.difficulty ?? 'easy');
+  }, [config?.difficulty]);
+  
   return (
-    <React.Fragment>
-      {props.preview || true && (
+    <StyledPuzzle>
+      {props.preview ? (
         <StyledDifficulties>
           {['easy', 'medium', 'hard'].map((diff) => (
             <StyledButton
@@ -93,10 +116,27 @@ export const SudokuPuzzle = ({
             </StyledButton>
           ))}
         </StyledDifficulties>
+      ) : (
+        <StyledDifficulties>
+          <StyledButton>
+            {`Difficulty: ${difficulty}`}
+          </StyledButton>
+        </StyledDifficulties>
       )}
       <Board
+        ref={ boardRef }
         { ...puzzle }
         { ...props } />
-    </React.Fragment>
+      <StyledRow>
+        <StyledButton
+          onClick={ () => handleRestart() }>
+          Restart
+        </StyledButton>
+        <StyledButton
+          onClick={ () => handleNewGame() }>
+          New Game
+        </StyledButton>
+      </StyledRow>
+    </StyledPuzzle>
   );
 };

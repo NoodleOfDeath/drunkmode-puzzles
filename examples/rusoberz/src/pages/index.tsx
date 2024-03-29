@@ -59,8 +59,8 @@ export default function Home() {
   React.useLayoutEffect(() => {
     function updateSize() {
       setSize((prev) => {
-        if (prev.width === window.innerWidth && 
-            prev.height === window.innerHeight) {
+        if (prev?.width === window.innerWidth && 
+            prev?.height === window.innerHeight) {
           return prev;
         }
         const newSize = {
@@ -88,6 +88,7 @@ export default function Home() {
   
   React.useEffect(() => {
     const env = new PuzzleEnv();
+    setEnv(env);
   }, []);
 
   return (

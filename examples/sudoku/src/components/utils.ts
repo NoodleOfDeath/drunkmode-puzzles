@@ -104,7 +104,7 @@ export const generateSudokuPuzzle = ({
   }
 
   return {
-    solution,
     startingValues: board,
+    values: board,
   };
 };

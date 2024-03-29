@@ -18,7 +18,7 @@ const StyledMain = styled('main')<{ height: number }>`
   min-height: ${({ height }) => height}px;
 `;
 
-export default function Home() {
+const Index = () => {
   
   const [env, setEnv] = React.useState<PuzzleEnv>();
   const [layout, setLayout] = React.useState(ZERO_LAYOUT);
@@ -53,14 +53,18 @@ export default function Home() {
     <StyledMain height={ layout.height }>
       <SudokuPuzzle
         preview={ env?.preview }
-        config={ env?.config }
+        config={ env?.config } 
         data={ env?.data }
         startFresh={ !!env?.preview || !env?.data }
-        onConfig={ (data) => PuzzleMessage.onConfig(data) }
+        onConfig={ (data) => PuzzleMessage.onConfig({
+          ...env?.config,
+          ...data,
+        }) }
         onProgress={ (data) => PuzzleMessage.onProgress(data) }
         onFailure={ (data) => PuzzleMessage.onFailure(data) }
         onSuccess={ (data) => PuzzleMessage.onSuccess(data) } />
     </StyledMain>
   );
-}
+};
  
+export default Index;

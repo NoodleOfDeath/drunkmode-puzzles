@@ -22,7 +22,7 @@ export type PuzzlePackageLoader = {
   readFile: (path: string) => Promise<string>;
 }
 
-export type PuzzlePackageProps = {
+export type PuzzlePackageInfo = {
   name: string;
   icon?: string;
   version?: string;
@@ -30,6 +30,14 @@ export type PuzzlePackageProps = {
   displayName: string;
   description?: string;
   instructions?: string;
+  comingSoon?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data?: any;
+};
+
+export type PuzzlePackageProps = PuzzlePackageInfo & {
   html?: string;
   baseUrl: string;
   loader: PuzzlePackageLoader;

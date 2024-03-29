@@ -35,7 +35,7 @@ export const NumberSelector = ({
         return (
           <Cell
             size={ cellSize }
-            style={ { opacity: i > 0 && !remainingNumbers.includes(i) ? 0.5 : 1 } }
+            style={ { opacity: i > 0 && !remainingNumbers.includes(i) ? 0.25 : 1 } }
             key={ `number-${value}` }
             value={ value ? value : '' }
             onSelect={ (value) => (i === 0 || (i > 0 && remainingNumbers.includes(i))) && onSelect?.(value as SudokuValue) }>
@@ -54,25 +54,23 @@ const StyledBoard = styled.div`
   gap: 1rem;
 `;
 
-const StyledButton = styled.div`
-  padding: 1rem;
-`;
-
 export type BoardProps = PuzzleProps & {
   values?: SudokuGrid;
   startingValues: SudokuGrid;
-  solution: SudokuGrid;
 };
 
-export const Board = ({ 
+export type BoardRef = {
+  reset: () => void;
+};
+
+export const Board = React.forwardRef(function Board({ 
   startingValues: startingValues0,
   values: values0 = startingValues0,
-  solution,
   onProgress,
   onFailure,
   onSuccess,
   ...props
-}: BoardProps) => {
+}: BoardProps, ref: React.ForwardedRef<BoardRef>) {
 
   const [layout, setLayout] = React.useState<{ width: number; height: number }>();
   const [selectedCell, setSelectedCell] = React.useState<CellCoordinate>();
@@ -129,30 +127,22 @@ export const Board = ({
       }
       
       onProgress?.(JSON.stringify({ 
-        solution, 
         startingValues: startingValues0,
         values: newValues,
       }));
           
       return newValues;
     });
-  }, [onProgress, solution, startingValues0, onFailure]);
-  
-  const handleRestart = React.useCallback(() => {
-    if (window.confirm('Are you sure you want to reset your progress? This cannot be undone')) {
-      setValues(startingValues0);
-      setInvalidCells([]);
-    }
-  }, [startingValues0]);
+  }, [onProgress, startingValues0, onFailure]);
 
   React.useEffect(() => {
-    if (solution.length === 0 || values.length === 0) {
+    if (values.length === 0) {
       return;
     }
     if (values.flat().filter(Boolean).length === 81 && invalidCells.length === 0) {
       onSuccess();
     }
-  }, [values, invalidCells, onSuccess, solution.length]);
+  }, [values, invalidCells, onSuccess]);
   
   React.useEffect(() => {
     setValues(values0);
@@ -167,7 +157,7 @@ export const Board = ({
   }, [values0, validate]);
   
   React.useLayoutEffect(() => {
-    function updateSize() {
+    function updateLayout() {
       setLayout((prev) => {
         if (prev?.width === window.innerWidth && 
             prev?.height === window.innerHeight) {
@@ -180,12 +170,19 @@ export const Board = ({
         return newSize;
       });
     }
-    window.addEventListener('resize', updateSize);
-    updateSize();
+    window.addEventListener('resize', updateLayout);
+    updateLayout();
     return () => {
-      window.removeEventListener('resize', updateSize);
+      window.removeEventListener('resize', updateLayout);
     };
   }, []);
+  
+  React.useImperativeHandle(ref, () => ({
+    reset: () => {
+      setValues(startingValues0);
+      setInvalidCells([]);
+    },
+  }), [startingValues0]);
 
   return (
     <StyledBoard> 
@@ -205,10 +202,6 @@ export const Board = ({
           }
           setAndValidateCell(selectedCell.row, selectedCell.col, value ?? 0);
         } } />
-      <StyledButton
-        onClick={ () => handleRestart() }>
-        Restart
-      </StyledButton>
     </StyledBoard>
   );
-};
+});
