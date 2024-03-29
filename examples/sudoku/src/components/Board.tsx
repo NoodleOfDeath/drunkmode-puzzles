@@ -35,7 +35,10 @@ export const NumberSelector = ({
         return (
           <Cell
             size={ cellSize }
-            style={ { opacity: i > 0 && !remainingNumbers.includes(i) ? 0.25 : 1 } }
+            style={ { 
+              opacity: i > 0 && !remainingNumbers.includes(i) ? 0.25 : 1,
+              textDecorationLine: 'none',
+            } }
             key={ `number-${value}` }
             value={ value ? value : '' }
             onSelect={ (value) => (i === 0 || (i > 0 && remainingNumbers.includes(i))) && onSelect?.(value as SudokuValue) }>

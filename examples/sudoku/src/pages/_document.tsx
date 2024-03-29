@@ -19,8 +19,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <link rel='stylesheet' href='/index.css' />
-          <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+          <link rel='stylesheet' href='./index.css' />
         </Head>
         <body className="app">
           <Main />

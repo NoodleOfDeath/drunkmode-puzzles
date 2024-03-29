@@ -2,7 +2,7 @@ import React from 'react';
 
 import styled from 'styled-components';
 
-export type CellProps = React.PropsWithChildren<{
+export type CellProps = React.PropsWithChildren<Omit<React.CSSProperties, 'translate'> & {
   size?: number | 'auto';
   width?: number | 'auto';
   height?: number | 'auto';
@@ -42,9 +42,13 @@ export const Cell = ({
   defaultProps = {
     background: 'white',
     color: 'black',
+    textDecorationLine: 'underline',
   },
   fixed,
-  fixedProps = { fontWeight: 'bold' },
+  fixedProps = { 
+    fontWeight: 'bold',
+    textDecorationLine: 'none',
+  },
   selected,
   selectedProps = { background: '#ccc' },
   invalid,
@@ -80,9 +84,9 @@ export const Cell = ({
         height: height === 'auto' ? 'auto' : `${height}px`,
         lineHeight: `${height}px`,
         width: width === 'auto' ? 'auto' : `${width}px`,
-        ...props.style,
         ...textProps,
         ...containerProps, 
+        ...props.style,
       } }>
       {children || ''}
     </StyledCell>
