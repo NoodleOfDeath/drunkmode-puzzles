@@ -1,6 +1,6 @@
 {
   "name": "drunkmode-puzzles",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Library used for creating custom puzzles for the Drunk Mode app",
   "main": "dist/index.js",
   "repository": {
