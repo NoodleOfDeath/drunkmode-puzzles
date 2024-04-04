@@ -63,15 +63,12 @@ var PuzzlePackage = class {
     this.loader = loader;
   }
   static async from(bundlePath, loader) {
-    const bundle = await loader.stat(bundlePath);
-    if (bundle.isFile()) {
-      throw new Error("Bundle is not a directory");
+    const infoPath = pathJoin(bundlePath, "puzzle.json");
+    const info = await loader.exists(infoPath);
+    if (!info) {
+      throw new Error("Bundle is malformed");
     }
-    const info = await loader.stat(pathJoin(bundlePath, "puzzle.json"));
-    if (info.isDirectory()) {
-      throw new Error("Puzzle info is not a file");
-    }
-    const json = JSON.parse(await loader.readFile(info.path));
+    const json = JSON.parse(await loader.readFile(infoPath));
     return new this({
       ...json,
       baseUrl: bundlePath,

@@ -4,21 +4,8 @@ const pathJoin = (a: string, b: string) => {
   return a + (a.endsWith('/') ? '' : '/') + b;
 }
 
-// from react-native
-export type StatResult = {
-  name: string | undefined // The name of the item TODO: why is this not documented?
-  path: string // The absolute path to the item
-  size: number // Size in bytes
-  mode: number // UNIX file mode
-  ctime: number // Created date
-  mtime: number // Last modified date
-  originalFilepath: string // In case of content uri this is the pointed file path, otherwise is the same as path
-  isFile: () => boolean // Is the file just a file?
-  isDirectory: () => boolean // Is the file a directory?
-}
-
 export type PuzzlePackageLoader = {
-  stat: (path: string) => Promise<StatResult>;
+  exists: (path: string) => Promise<boolean>;
   readFile: (path: string) => Promise<string>;
 }
 
@@ -82,15 +69,12 @@ export class PuzzlePackage implements PuzzlePackageProps {
   }
 
   static async from(bundlePath: string, loader: PuzzlePackageLoader) {
-    const bundle = await loader.stat(bundlePath);
-    if (bundle.isFile()) {
-      throw new Error('Bundle is not a directory');
+    const infoPath = pathJoin(bundlePath, 'puzzle.json')
+    const info = await loader.exists(infoPath);
+    if (!info) {
+      throw new Error('Bundle is malformed');
     }
-    const info = await loader.stat(pathJoin(bundlePath, 'puzzle.json'));
-    if (info.isDirectory()) {
-      throw new Error('Puzzle info is not a file');
-    }
-    const json = JSON.parse(await loader.readFile(info.path));
+    const json = JSON.parse(await loader.readFile(infoPath));
     return new this({
       ...json,
       baseUrl: bundlePath,
