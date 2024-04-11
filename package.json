@@ -22,8 +22,10 @@
   },
   "homepage": "https://github.com/noodleofdeath/drunkmode-puzzles#readme",
   "devDependencies": {
+    "@types/archiver": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^7.0.2",
+    "archiver": "^7.0.1",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-import": "^2.25.2",
