@@ -396,8 +396,10 @@ debug@^3.2.7:
   dependencies:
     ms "^2.1.1"
 
-drunkmode-puzzles@../../../drunkmode-puzzles:
-  version "0.1.4"
+drunkmode-puzzles@^0.1.13-c:
+  version "0.1.13-c"
+  resolved "https://registry.yarnpkg.com/drunkmode-puzzles/-/drunkmode-puzzles-0.1.13-c.tgz#b8be298b9b9d086efb7794f860f945a161b882c9"
+  integrity sha512-1k0YdWZR0LtJh7vRhmO6Naagteg3TYhwRsjJFsWX2qcuBUNm8pm3Y2GwsJXDNG+gGpdJ2zO7TWW8/M8+poJksA==
 
 esbuild@~0.19.10:
   version "0.19.12"
