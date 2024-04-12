@@ -1,13 +1,13 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const pathJoin = (a: string, b: string) => {
   return a + (a.endsWith('/') ? '' : '/') + b;
-}
+};
 
 export type PuzzlePackageLoader = {
   exists: (path: string) => Promise<boolean>;
   readFile: (path: string) => Promise<string>;
-}
+};
 
 export type PuzzlePackageInfo = {
   name: string;
@@ -18,9 +18,7 @@ export type PuzzlePackageInfo = {
   description?: string;
   instructions?: string;
   comingSoon?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
 };
 
@@ -69,7 +67,7 @@ export class PuzzlePackage implements PuzzlePackageProps {
   }
 
   static async from(bundlePath: string, loader: PuzzlePackageLoader) {
-    const infoPath = pathJoin(bundlePath, 'puzzle.json')
+    const infoPath = pathJoin(bundlePath, 'puzzle.json');
     const info = await loader.exists(infoPath);
     if (!info) {
       throw new Error('Bundle is malformed');
@@ -106,7 +104,6 @@ export type PuzzleEvent = 'config' | 'failure' | 'progress' | 'success';
 
 export class PuzzleMessage<
   Event extends PuzzleEvent,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Data = Event extends 'success' ? SuccessOptions : Event extends 'failure' ? FailureOptions : any
 > {
 
@@ -115,8 +112,8 @@ export class PuzzleMessage<
 
   public get stringified() {
     return JSON.stringify({
+      data: this.data,
       event: this.event,
-      data: this.data
     });
   }
 
@@ -140,7 +137,6 @@ export class PuzzleMessage<
    * 
    * @param data the configuration data
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static onConfig(data?: any) {
     (new PuzzleMessage('config', data)).post();
   }
@@ -153,7 +149,6 @@ export class PuzzleMessage<
    * 
    * @param data saved progress data
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static onProgress(data?: any) {
     (new PuzzleMessage('progress', data)).post();
   }
@@ -189,7 +184,6 @@ export class PuzzleMessage<
 
 export class PuzzleEnv {
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   store: any;
 
   get preview() {
@@ -209,10 +203,10 @@ export class PuzzleEnv {
       this.store = { ...(window as any).DrunkMode };
     } catch (e) {
       this.store = {
-        preview: false,
         config: {},
         data: {},
-      }
+        preview: false,
+      };
     }
   }
 
@@ -221,9 +215,7 @@ export class PuzzleEnv {
 export type PuzzleProps = {
   preview?: boolean;
   startFresh?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   onConfig?: (config?: any) => void;
   onProgress?: (progress?: any) => void;

@@ -1,0 +1,9 @@
+{
+  "name": "com.mycompany.myproduct.mypuzzle",
+  "version": "1.0.0",
+  "icon": "toy-brick",
+  "displayName": "My Drunk Mode Puzzle",
+  "description": "My Drunk Mode Puzzle",
+  "author": "Brad Pitt",
+  "instructions": "Solve the puzzle to deactivate Drunk Mode"
+}

@@ -1,8 +1,17 @@
 {
   "name": "drunkmode-puzzles",
-  "version": "0.1.9",
+  "version": "0.1.13c",
   "description": "Library used for creating custom puzzles for the Drunk Mode app",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/noodleofdeath/drunkmode-puzzles.git"
@@ -12,9 +21,13 @@
     "puzzles"
   ],
   "scripts": {
-    "build": "esbuild index.ts --bundle --platform=node --target=node14 --format=cjs --outdir=dist",
+    "clean": "rimraf dist",
+    "prebuild": "yarn clean",
+    "build": "tsc",
+    "preversion": "yarn build",
+    "version": "npm publish",
     "publish": "yarn build && npm publish",
-    "create": "tsx dev-tools/create.ts"
+    "create-puzzle": "tsx dev-tools/create.ts"
   },
   "author": "NoodleOfDeath",
   "license": "MIT",
@@ -22,11 +35,20 @@
     "url": "https://github.com/noodleofdeath/drunkmode-puzzles/issues"
   },
   "homepage": "https://github.com/noodleofdeath/drunkmode-puzzles#readme",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "styled-components": "^6.1.8"
+  },
   "devDependencies": {
     "@types/archiver": "^6.0.2",
+    "@types/argparse": "^2.0.16",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.77",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^7.0.2",
     "archiver": "^7.0.1",
+    "argparse": "^2.0.1",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-import": "^2.25.2",
