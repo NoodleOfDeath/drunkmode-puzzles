@@ -1,4 +1,4 @@
-import { SudokuGrid, SudokuValue } from './SudokuPuzzle';
+import { SudokuGrid, SudokuValue } from './types';
 
 export const SUDOKU_DIFFICULTIES = {
   easy: 20,

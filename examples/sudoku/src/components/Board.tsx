@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { Cell } from './Cell';
 import { CellCoordinate, Grid } from './Grid';
-import { SudokuGrid, SudokuValue } from './SudokuPuzzle';
+import { SudokuGrid, SudokuValue } from './types';
 import { valueIsValidInGrid } from './utils';
 
 export type NumberSelectorProps = {

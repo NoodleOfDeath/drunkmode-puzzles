@@ -3,12 +3,9 @@ import React from 'react';
 import { PuzzleProps } from 'drunkmode-puzzles';
 import styled from 'styled-components';
 
-import { Board, BoardRef } from './Board';
-import { generateSudokuPuzzle } from './utils';
-
-export type SudokuValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-
-export type SudokuGrid = SudokuValue[][];
+import { Board, BoardRef } from './components/Board';
+import { SudokuGrid } from './components/types';
+import { generateSudokuPuzzle } from './components/utils';
 
 export type SudokuPuzzleProps = PuzzleProps & {
   values?: SudokuGrid;

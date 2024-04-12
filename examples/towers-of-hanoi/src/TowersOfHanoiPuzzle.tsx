@@ -103,7 +103,7 @@ export const Disk = ({
   );
 };
 
-export const TowersOfHanoi: React.FC<TowersOfHanoiProps> = ({
+export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
   onConfig,
   onProgress,
   onFailure,
@@ -163,12 +163,6 @@ export const TowersOfHanoi: React.FC<TowersOfHanoiProps> = ({
       reset();
     }
   }, [reset]);
-  
-  const handleNewGame = React.useCallback(() => {
-    if (window.confirm('Are you sure you want to start a new game? You will lose all curren progress')) {
-      reset();
-    }
-  }, [reset]);
 
   React.useEffect(() => {
     if (towers[numberOfTowers - 1].length === numberOfDisks) {
@@ -196,6 +190,10 @@ export const TowersOfHanoi: React.FC<TowersOfHanoiProps> = ({
       }
     }
   }, [startFresh, data, loaded, numberOfDisks, numberOfTowers, reset, difficulty]);
+  
+  React.useEffect(() => {
+    setDifficulty(config?.difficulty ?? 'easy');
+  }, [config?.difficulty]);
 
   return (
     <StyledPuzzle>
@@ -258,10 +256,6 @@ export const TowersOfHanoi: React.FC<TowersOfHanoiProps> = ({
         <StyledButton
           onClick={ () => handleRestart() }>
           Restart
-        </StyledButton>
-        <StyledButton
-          onClick={ () => handleNewGame() }>
-          New Game
         </StyledButton>
       </StyledRow>
     </StyledPuzzle>

@@ -23,7 +23,27 @@ export const Puzzle = ({
 }: PuzzleProps) => {
   return (
     <StyledContainer>
-      Test
+      {props.preview && (
+        <React.Fragment>
+          <div>
+            User is previewing the puzzle. Display any
+            configurations here that the user should set like 
+            puzzle difficulty
+          </div>
+          <div>
+            Use the onConfig function to update the 
+            puzzle configurations
+          </div>
+        </React.Fragment>
+      )}
+      <div>Your Puzzle Goes Here</div>
+      <div>
+        Use the onProgress function to update the puzzle progress
+        so that the user does not have to start over if they close
+        the puzzle
+      </div>  
+      <button onClick={ () => onFailure() }>Press me to fail the puzzle</button>
+      <button onClick={ () => onSuccess() }>Press me to succeed the puzzle</button>
     </StyledContainer>
   );
 };
