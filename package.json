@@ -27,7 +27,7 @@
     "preversion": "yarn build",
     "version": "npm publish",
     "publish": "yarn build && npm publish",
-    "create-puzzle": "tsx dev-tools/create.ts"
+    "imdrunk": "tsx dev-tools/create.ts"
   },
   "author": "NoodleOfDeath",
   "license": "MIT",

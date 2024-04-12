@@ -18,7 +18,8 @@ This library contains the core logic needed to create custom puzzles for the Dru
 ## Table of Contents <!-- omit in toc -->
 
 - [Install](#install)
-- [Usage](#usage)
+- [TL;DR Quick Start](#tldr-quick-start)
+- [Low-Level Usage](#low-level-usage)
 - [Package Your Puzzle](#package-your-puzzle)
 
 ## Install
@@ -27,7 +28,35 @@ This library contains the core logic needed to create custom puzzles for the Dru
 npm install drunkmode-puzzles
 ```
 
-## Usage
+or
+
+```bash
+yarn add drunkmode-puzzles
+```
+
+## TL;DR Quick Start
+
+```bash
+git clone git@gihub.com:noodleofdeath/drunkmode-puzzles.git
+cd drunkmode-puzzles
+yarn imdrunk <YourPuzzle> <com.yourcompany.yourproduct.YourPuzzle>
+cd examples/YourPuzzle
+yarn
+yarn dev
+```
+
+Only edit the file `Puzzle.tsx` in the `src` directory, unless you know what you are doing.
+Also, be sure to update your `puzzle.json` file with your information.
+
+When you are ready to submit, you can simply run:
+
+```bash
+yarn export
+```
+
+The copy the zip file in the `out` directory, and submit it to the Drunk Mode app.
+
+## Low-Level Usage
 
 First create a web app that imports the `PuzzleMessage` class from the `drunkmode-puzzles` package. Your puzzle does not need to be a React component, but it can be if you want to use React. The only requirement is that you call `PuzzleMessage.onSuccess` and `PuzzleMessage.onFailure` when the user completes or fails the puzzle.
 
