@@ -12,7 +12,15 @@ const StyledContainer = styled.div`
   justify-content: center;
 `;
 
-export const Puzzle = ({ ...props }: PuzzleProps) => {
+export const Puzzle = ({
+  config,
+  data,
+  onConfig,
+  onProgress,
+  onFailure,
+  onSuccess,
+  ...props
+}: PuzzleProps) => {
   return (
     <StyledContainer>
       Test
