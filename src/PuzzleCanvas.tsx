@@ -19,7 +19,7 @@ export type PuzzleCanvasProps = {
 
 const ZERO_LAYOUT: Layout = { height: 0, width: 0 };
 
-const StyledMain = styled('main') <{ height: number }>`
+const StyledMain = styled('main')<{ height: number }>`
   display: flex;
   flex-direction: column;
   min-height: ${({ height }) => height}px;

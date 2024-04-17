@@ -102,6 +102,46 @@ export type SuccessOptions = MessageOptions;
 
 export type PuzzleEvent = 'config' | 'failure' | 'progress' | 'success';
 
+export const DevReactNativeWebView = {
+  postMessage: (msg: string) => {
+    const { event, data } = PuzzleMessage.from(msg);
+    switch (event) {
+      case 'config':
+        (window as any).DrunkMode = {
+          ...(window as any).DrunkMode,
+          config: data,
+        };
+        break;
+      case 'progress':
+        (window as any).DrunkMode = {
+          ...(window as any).DrunkMode,
+          progress: data,
+        };
+        break;
+      case 'failure':
+        (window as any).alert('Epic fail! Try again');
+        break;
+      case 'success':
+        (window as any).alert('Nice job! You completed the puzzle!');
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+export type IDrunkMode = {
+  config: any;
+  data: any;
+  preview: boolean;
+}
+
+export const DevDrunkMode: IDrunkMode = {
+  config: {},
+  data: {},
+  preview: false,
+}
+
 export class PuzzleMessage<
   Event extends PuzzleEvent,
   Data = Event extends 'success' ? SuccessOptions : Event extends 'failure' ? FailureOptions : any
@@ -175,8 +215,8 @@ export class PuzzleMessage<
     try {
       (window as any).ReactNativeWebView.postMessage(this.stringified);
     } catch (e) {
-      console.warn('Looks like you are not in a WebView');
-      console.warn(e);
+      (window as any).ReactNativeWebView = DevReactNativeWebView;
+      this.post();
     }
   }
 
@@ -184,7 +224,7 @@ export class PuzzleMessage<
 
 export class PuzzleEnv {
 
-  store: any;
+  store: IDrunkMode;
 
   get preview() {
     return this.store.preview;
@@ -200,13 +240,9 @@ export class PuzzleEnv {
 
   constructor() {
     try {
-      this.store = { ...(window as any).DrunkMode };
+      this.store = { ...(window as any).DrunkMode } as IDrunkMode;
     } catch (e) {
-      this.store = {
-        config: {},
-        data: {},
-        preview: false,
-      };
+      this.store = DevDrunkMode;
     }
   }
 
