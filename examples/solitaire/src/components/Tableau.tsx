@@ -26,10 +26,17 @@ const Tableau: React.FC<TableauProps> = ({ cards }) => {
     
     <div className="grid w-full grid-cols-7 justify-items-center">
       {tableauCards.map((column, columnIndex) => (
-        <div className="tableau-column" key={ columnIndex }>
-          {column.map((card, cardIndex) => (
-            <Card key={ cardIndex } { ...card } />
-          ))}
+        <div style={ { height: `${(column.length - 1) * 20 + 150}px` } } key={ columnIndex }>
+          {column.map((card, cardIndex) => {
+            const isLastCard = cardIndex === column.length - 1;
+            return (
+              <div
+                key={ cardIndex }
+                style={ { transform: `translateY(${cardIndex * -75}%)` } }>
+                <Card { ...card } isFaceUp={ isLastCard } />
+              </div>
+            );
+          })} 
         </div>
       ))}
     </div>
