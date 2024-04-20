@@ -10,10 +10,13 @@
     "@types/react-dom": "^18.2.22",
     "next": "^13.4.9",
     "nodemon": "^2.0.21",
+    "tailwindcss": "^3.4.3",
     "tsx": "^4.7.1"
   },
   "dependencies": {
-    "drunkmode-puzzles": "^0.1.13-c",
+    "autoprefixer": "^10.4.19",
+    "drunkmode-puzzles": "^0.1.13-f",
+    "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^6.1.8",

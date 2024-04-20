@@ -1,6 +1,9 @@
 // do not modify this file
 import React from 'react';
 
+// it's just for tailwind css
+import './../assets/global.css';
+
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 
@@ -8,12 +11,12 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <React.Fragment>
       <Head>
-        <title key='title'>$displayName</title>
+        <title key='title'>Solitaire</title>
         <meta name="description" content="$description" />
         <meta
           key='og:title'
           property="og:title" 
-          content="$displayName" />
+          content="Solitaire" />
         <meta
           key='og:description'
           property="og:description"
@@ -29,7 +32,7 @@ function App({ Component, pageProps }: AppProps) {
         <meta
           key='og:site_name'
           property="og:site_name"
-          content="$displayName" />
+          content="Solitaire" />
         <meta
           key='viewport'
           name="viewport"

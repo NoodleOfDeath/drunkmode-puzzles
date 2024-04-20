@@ -4,12 +4,12 @@ import React from 'react';
 
 import { PuzzleCanvas } from 'drunkmode-puzzles';
 
-import { Puzzle } from '~/Puzzle';
+import { Puzzle } from '~/SolitairePuzzle';
 
 const Index = () => {
   return (
     <PuzzleCanvas puzzle={ Puzzle } />
   );
 };
- 
+
 export default Index;
