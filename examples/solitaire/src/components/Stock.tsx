@@ -2,29 +2,16 @@ import React, { useEffect, useState } from 'react';
 
 import Card from './Card';
 
+import { CardType } from '~/SolitairePuzzle';
+
 interface StockProps {
-  cards: Array<{
-    suit: string;
-    rank: string;
-    isFaceUp: boolean;
-    red: boolean;
-  }>;
+  cards: CardType[];
 }
 
 const Stock: React.FC<StockProps> = ({ cards }) => {
-  const [wasteCards, setWasteCards] = useState<Array<{
-    suit: string;
-    rank: string;
-    isFaceUp: boolean;
-    red: boolean;
-  }>>([]);
+  const [wasteCards, setWasteCards] = useState<CardType[]>([]);
 
-  const [Cards, setCards] = useState<Array<{
-    suit: string;
-    rank: string;
-    isFaceUp: boolean;
-    red: boolean;
-  }>>([]);
+  const [Cards, setCards] = useState<CardType[]>([]);
 
   useEffect(() => {
     setCards(cards);

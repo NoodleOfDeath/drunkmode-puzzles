@@ -6,15 +6,21 @@ import Foundation from './components/Foundation';
 import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 
+export type CardType = {
+  id: string, isFaceUp: boolean; rank: string; red: boolean; suit: string;
+};
+
 // Define card suits and ranks
 const suits = ['♠', '♣', '♥', '♦'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
 // Generate all 52 cards
-const cards: { isFaceUp: boolean; rank: string; red: boolean; suit: string; }[] = [];
+const cards: CardType[] = [];
+let cardId = 1;
 for (const suit of suits) {
   for (const rank of ranks) {
     cards.push({
+      id: `${cardId++}`,
       isFaceUp: true,
       rank,
       red: suit === '♥' || suit === '♦',
@@ -32,8 +38,8 @@ export const Puzzle = ({
   // onSuccess,
   ...props
 }: PuzzleProps) => {
-  const [TableauCards, setTableauCards] = useState<{ isFaceUp: boolean; rank: string; red: boolean; suit: string; }[]>([]);
-  const [StockCards, setStockCards] = useState<{ isFaceUp: boolean; rank: string; red: boolean; suit: string; }[]>([]);
+  const [TableauCards, setTableauCards] = useState<CardType[]>([]);
+  const [StockCards, setStockCards] = useState<CardType[]>([]);
 
   useEffect(() => {
     const shuffledCards = [...cards].sort(() => Math.random() - 0.5);

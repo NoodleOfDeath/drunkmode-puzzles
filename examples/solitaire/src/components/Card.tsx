@@ -4,6 +4,7 @@ import Image from 'next/image';
 
 import AppIcon from './../assets/AppIcon.png';
 interface CardProps {
+  id: string;
   suit: string;
   rank: string;
   isFaceUp: boolean;
