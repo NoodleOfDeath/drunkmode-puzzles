@@ -34,7 +34,7 @@ const Stock: React.FC<StockProps> = ({
   return (
     <React.Fragment>
       <div className='flex py-2 gap-3 w-fit'>
-        <div onClick={ handleDrawCard } className="relative w-[12vw] h-[18vw] lg:w-[80px] lg:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
+        <div onClick={ handleDrawCard } className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
           {Cards.map((card, cardIndex) => (
             <div key={ cardIndex } style={ { position: 'absolute', top: `${cardIndex * 0.02}rem` } }>
               <Card key={ cardIndex } { ...card } isFaceUp={ false } />
@@ -47,7 +47,7 @@ const Stock: React.FC<StockProps> = ({
             <div
               { ...provided.droppableProps }
               ref={ provided.innerRef }
-              className="relative w-[12vw] h-[18vw] lg:w-[80px] lg:h-[120px] mb-5">
+              className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5">
               {wasteCards.map((card, cardIndex) => {
                 if (!card) { 
                   return null;

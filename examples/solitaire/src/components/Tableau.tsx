@@ -1,7 +1,13 @@
 //Tableau.tsx
 import React from 'react';
 
-import { Draggable, Droppable } from 'react-beautiful-dnd';
+import {
+  Draggable,
+  DraggableStateSnapshot,
+  DraggingStyle,
+  Droppable,
+  NotDraggingStyle,
+} from 'react-beautiful-dnd';
 
 import Card from './Card';
 
@@ -9,6 +15,22 @@ import { CardType } from '~/SolitairePuzzle';
 
 interface TableauProps {
   tableauCards: CardType[][]
+}
+
+// stop reordering animation 
+export function getStyle(style: DraggingStyle | NotDraggingStyle | undefined, snapshot: DraggableStateSnapshot) {
+  if (!snapshot.isDragging) {
+    return {};
+  }
+  if (!snapshot.isDropAnimating) {
+    return style;
+  }
+
+  return {
+    ...style,
+    // cannot be 0, but make it super tiny
+    transitionDuration: '0.001s',
+  };
 }
 
 const Tableau: React.FC<TableauProps> = ({ tableauCards }) => {
@@ -23,24 +45,26 @@ const Tableau: React.FC<TableauProps> = ({ tableauCards }) => {
               { ...provided.droppableProps }
               ref={ provided.innerRef }
               className='grid justify-items-center flex-1 min-w-full'
-              style={ { gridTemplateRows: `repeat(${(column.length )}, clamp(15px, 5vw, 45px))`, minHeight: `${(column.length - 1) * 20 + 150}px` } }>
+              style={ { gridTemplateRows: `repeat(${(column.length )}, clamp(15px, 5vw, 35px))`, minHeight: `${(column.length - 1) * 20 + 150}px` } }>
               {column.map((card, cardIndex) => {
                 if (!card) { 
                   return null;
                 }
-                //const isLastCard = cardIndex === column.length - 1;
+                (cardIndex === column.length - 1)? (card.isFaceUp = true) : '';
+                
                 return (
                   <Draggable
+                    isDragDisabled={ !card.isFaceUp }
                     draggableId={ `${card.id}` }
                     index={ cardIndex }
                     key={ `${card.id}` }>
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <div
                         ref={ provided.innerRef }
                         { ...provided.draggableProps }
                         { ...provided.dragHandleProps }
-                        style={ { ...provided.draggableProps.style } }>
-                        <Card { ...card } isFaceUp={ true } />
+                        style={ getStyle( provided.draggableProps.style, snapshot) }>
+                        <Card { ...card } />
                       </div>
                     )}
                   </Draggable>
