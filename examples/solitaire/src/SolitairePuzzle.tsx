@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 
 import { PuzzleProps } from 'drunkmode-puzzles';
+import router from 'next/router';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import Foundation from './components/Foundation';
-import { handleDragEnd } from './components/Logic';
+import { checkWinningCondition, handleDragEnd } from './components/Logic';
 import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 export type CardType = {
@@ -36,12 +37,14 @@ export const Puzzle = ({
   // onConfig,
   // onProgress,
   // onFailure,
-  // onSuccess,
+  onSuccess,
   ...props
 }: PuzzleProps) => {
   const shuffledragCards = [...cards].sort(() => Math.random() - 0.5);
   const [tableauCards, setTableauCards] = useState<CardType[][]>([]);
-  const [wasteCards, setWasteCards] = useState<CardType[]>([]);
+  const [wasteCards, setWasteCards] = useState<CardType[]>([]); 
+  const [stockCards, setStockCards] = useState<CardType[]>([]);
+
   const [suitCards, setsuitCards] = useState<Array<CardType[]>>([[], [], [], []]);
   useEffect(() => {
     setTableauCards(() => {
@@ -62,6 +65,7 @@ export const Puzzle = ({
       }
       return _cards;
     }); 
+    setStockCards(shuffledragCards.slice(28));
   }, []);
   const handleDragEndWrapper = ({ source, destination }: { source: any; destination: any; }) => {
     handleDragEnd({
@@ -70,10 +74,19 @@ export const Puzzle = ({
       setWasteCards,
       setsuitCards,
       source,
+      stockCards,
       suitCards,
       tableauCards,
       wasteCards,
     });
+    const isWinner = checkWinningCondition(tableauCards, wasteCards, stockCards);
+    if (isWinner) {
+      // TODO: move the reset of the tableau cards to the foundation with an animation
+      onSuccess();
+    }
+  };
+  const restart = () => {
+    router.reload();
   };
   return (
     <div className="flex flex-col px-2 w-full max-w-screen-lg mx-auto min-h-screen">
@@ -84,11 +97,19 @@ export const Puzzle = ({
       {/* Foundation component */}
       <DragDropContext onDragEnd={ handleDragEndWrapper }>
         <div className='flex justify-between'>
-          <StockPile cards={ shuffledragCards.slice(28) } wasteCards={ wasteCards } setWasteCards={ setWasteCards } />
+          <StockPile cards={ stockCards } wasteCards={ wasteCards } setWasteCards={ setWasteCards } setStockCards={ setStockCards } />
           <Foundation suits={ suits } suitCards={ suitCards } setsuitCards={ setsuitCards } /> 
         </div>
         <Tableau tableauCards={ tableauCards } />
       </DragDropContext>
+      <div className="flex justify-center gap-6 mb-2">
+        <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60'>
+          UNDO
+        </button>
+        <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60' onClick={ restart }>
+          NEW
+        </button>
+      </div>
     </div>
   );
 };

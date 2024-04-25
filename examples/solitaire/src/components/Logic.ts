@@ -13,6 +13,7 @@ export const handleDragEnd = ({
   suitCards,
   setsuitCards,
   wasteCards,
+  stockCards,
   setWasteCards,
 }: {
   source: any;
@@ -22,6 +23,7 @@ export const handleDragEnd = ({
   suitCards: Array<CardType[]>;
   setsuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
   wasteCards: CardType[];
+  stockCards: CardType[];
   setWasteCards: React.Dispatch<React.SetStateAction<CardType[]>>;
 }) => {
   if (!destination) {
@@ -120,4 +122,14 @@ const isValidFoundationMove = (cardsToMove: CardType[], foundationPile: CardType
     firstCardToMove.suit === lastCard.suit &&
     ranks.indexOf(firstCardToMove.rank) === ranks.indexOf(lastCard.rank) +1
   );
+};
+
+// wheck win 
+export const checkWinningCondition = (tableauCards: CardType[][], wasteCards: CardType[], stockCards: CardType[]) => {
+  // Check if all cards in the tableau are face up
+  const allCardsFaceUp = tableauCards.every((column) => column.every((card) => card.isFaceUp));
+  // Check if the waste & stock pile is empty
+  const wasteEmpty = wasteCards.length === 0;
+  const stockEmpty = stockCards.length === 0;
+  return allCardsFaceUp && wasteEmpty && stockEmpty;
 };

@@ -1,5 +1,5 @@
 // Stock.tsx
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
@@ -11,22 +11,22 @@ interface StockProps {
   cards: CardType[];
   wasteCards: CardType[]; 
   setWasteCards: React.Dispatch<React.SetStateAction<CardType[]>>;
+  setStockCards: React.Dispatch<React.SetStateAction<CardType[]>>;
 }
 
 const Stock: React.FC<StockProps> = ({
-  cards, wasteCards, setWasteCards, 
+  cards, wasteCards, setWasteCards, setStockCards,
 }) => {
-  const [Cards, setCards] = useState<CardType[]>(cards);
   
   const handleDrawCard = () => {
-    if (Cards.length > 0) {
-      const lastCard = Cards[Cards.length - 1]; 
+    if (cards.length > 0) {
+      const lastCard = cards[cards.length - 1]; 
       lastCard.isFaceUp = true;
       setWasteCards([...wasteCards, lastCard]);
-      setCards(Cards.slice(0, -1)); 
+      setStockCards(cards.slice(0, -1)); 
     } else {
       const resetWasteCards = wasteCards.map(card => ({ ...card, isFaceUp: false }));
-      setCards(resetWasteCards); 
+      setStockCards(resetWasteCards); 
       setWasteCards([]); 
     }
   };
@@ -35,7 +35,7 @@ const Stock: React.FC<StockProps> = ({
     <React.Fragment>
       <div className='flex py-2 gap-3 w-fit'>
         <div onClick={ handleDrawCard } className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
-          {Cards.map((card, cardIndex) => (
+          {cards.map((card, cardIndex) => (
             <div key={ cardIndex } style={ { position: 'absolute', top: `${cardIndex * 0.02}rem` } }>
               <Card key={ cardIndex } { ...card } isFaceUp={ false } />
             </div>
