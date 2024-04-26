@@ -128,6 +128,7 @@ export const Puzzle = ({
       </DragDropContext>
       <div className="flex justify-center gap-6 mb-2">
         <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60' onClick={ undoMove }>
+        <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60' onClick={ undoMove }>
           UNDO
         </button>
         <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60' onClick={ resetGame }>
