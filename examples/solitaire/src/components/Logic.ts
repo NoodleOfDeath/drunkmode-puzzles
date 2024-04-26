@@ -11,9 +11,8 @@ export const handleDragEnd = ({
   tableauCards,
   setTableauCards,
   suitCards,
-  setsuitCards,
+  setSuitCards,
   wasteCards,
-  stockCards,
   setWasteCards,
 }: {
   source: any;
@@ -21,9 +20,8 @@ export const handleDragEnd = ({
   tableauCards: CardType[][];
   setTableauCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
   suitCards: Array<CardType[]>;
-  setsuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
+  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
   wasteCards: CardType[];
-  stockCards: CardType[];
   setWasteCards: React.Dispatch<React.SetStateAction<CardType[]>>;
 }) => {
   if (!destination) {
@@ -61,7 +59,7 @@ export const handleDragEnd = ({
       if (validMove) {
         uSuit[dColIdx] = uSuit[dColIdx].concat(cardsToMove);
         uTableau[sColIdx] = uTableau[sColIdx].slice(0, sIdx);
-        setsuitCards(uSuit);
+        setSuitCards(uSuit);
         setTableauCards(uTableau);
       }
     }
@@ -81,7 +79,7 @@ export const handleDragEnd = ({
       const validMove = isValidFoundationMove(cardsToMove, uSuit[dColIdx], dColIdx);
       if (validMove) {
         uSuit[dColIdx] = uSuit[dColIdx].concat(cardsToMove);
-        setsuitCards(uSuit);
+        setSuitCards(uSuit);
         setWasteCards(wasteCards.slice(0, -1));
       }
     }
@@ -94,7 +92,7 @@ export const handleDragEnd = ({
     if (validMove) {
       uTableau[dColIdx] = uTableau[dColIdx].concat(cardsToMove);
       uSuit[sColIdx] = uSuit[sColIdx].slice(0, sIdx);
-      setsuitCards(uSuit);
+      setSuitCards(uSuit);
       setTableauCards(uTableau);
     }
   }

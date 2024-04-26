@@ -11,7 +11,7 @@ import { CardType } from '~/SolitairePuzzle';
 interface FoundationProps {
   suits: string[];
   suitCards: CardType[][]; 
-  setsuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
+  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
 
 }
 

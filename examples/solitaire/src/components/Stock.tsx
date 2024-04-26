@@ -26,7 +26,7 @@ const Stock: React.FC<StockProps> = ({
       setStockCards(cards.slice(0, -1)); 
     } else {
       const resetWasteCards = wasteCards.map(card => ({ ...card, isFaceUp: false }));
-      setStockCards(resetWasteCards); 
+      setStockCards(resetWasteCards.reverse());
       setWasteCards([]); 
     }
   };
