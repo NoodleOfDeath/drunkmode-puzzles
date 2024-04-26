@@ -51,7 +51,6 @@ const Tableau: React.FC<TableauProps> = ({ tableauCards }) => {
                   return null;
                 }
                 (cardIndex === column.length - 1)? (card.isFaceUp = true) : '';
-                
                 return (
                   <Draggable
                     isDragDisabled={ !card.isFaceUp }

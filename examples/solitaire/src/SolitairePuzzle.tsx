@@ -44,8 +44,8 @@ export const Puzzle = ({
   const [tableauCards, setTableauCards] = useState<CardType[][]>([]);
   const [wasteCards, setWasteCards] = useState<CardType[]>([]); 
   const [stockCards, setStockCards] = useState<CardType[]>([]);
-
   const [suitCards, setsuitCards] = useState<Array<CardType[]>>([[], [], [], []]);
+  const gameHistory = React.useRef<Array<any| undefined>>([]);
   useEffect(() => {
     setTableauCards(() => {
       const _cards: CardType[][] = [];
@@ -67,6 +67,22 @@ export const Puzzle = ({
     }); 
     setStockCards(shuffledragCards.slice(28));
   }, []);
+
+  useEffect(() => {
+    const newStates = [tableauCards, wasteCards, stockCards, suitCards];
+    gameHistory.current = [...gameHistory.current, newStates];
+    console.log(gameHistory.current);
+  }, [tableauCards, wasteCards, stockCards, suitCards]);
+  const undoMove = () => {
+    if (gameHistory.current.length > 2) {
+      const prev = gameHistory.current[gameHistory.current.length - 2];
+      setTableauCards(prev[0]);
+      setWasteCards(prev[1]);
+      setStockCards(prev[2]);
+      setsuitCards(prev[3]);
+      gameHistory.current.slice(0, -2);
+    }
+  };
   const handleDragEndWrapper = ({ source, destination }: { source: any; destination: any; }) => {
     handleDragEnd({
       destination,
@@ -85,6 +101,7 @@ export const Puzzle = ({
       onSuccess();
     }
   };
+
   const restart = () => {
     router.reload();
   };
@@ -103,7 +120,7 @@ export const Puzzle = ({
         <Tableau tableauCards={ tableauCards } />
       </DragDropContext>
       <div className="flex justify-center gap-6 mb-2">
-        <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60'>
+        <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60' onClick={ undoMove }>
           UNDO
         </button>
         <button className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60' onClick={ restart }>
