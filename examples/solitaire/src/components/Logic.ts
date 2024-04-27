@@ -156,7 +156,6 @@ export const moveCardsAfterWin = ({
           newTableau[columnIndex] = newTableau[columnIndex].slice(0, -1);
           setTableauCards(newTableau);
           tableauCards = newTableau;
-          console.log(newTableau, tableauCards, columnIndex);
           setSuitCards(newFoundation);
           
         }

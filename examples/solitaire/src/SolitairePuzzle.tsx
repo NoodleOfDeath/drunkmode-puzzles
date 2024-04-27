@@ -4,6 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { PuzzleProps } from 'drunkmode-puzzles';
 import { DragDropContext } from 'react-beautiful-dnd';
 
+import club from './assets/club.png';
+import diamond from './assets/diamond.png';
+import heart from './assets/heart.png';
+import spade from './assets/spade.png';
 import Foundation from './components/Foundation';
 import {
   checkWinningCondition,
@@ -13,11 +17,11 @@ import {
 import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 export type CardType = {
-  id: string, isFaceUp: boolean; rank: string; red: boolean; suit: string;
+  id: string, isFaceUp: boolean; rank: string; red: boolean; suit: any;
 };
 
 // Define card suits and ranks
-export const [suits, ranks] = [['\u2660', '\u2663', '\u2665', '\u2666'], ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']];
+export const [suits, ranks] = [[spade, club, heart, diamond], ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']];
 
 // Generate all 52 cards
 const cards: CardType[] = [];
@@ -28,7 +32,7 @@ for (const suit of suits) {
       id: `${cardId++}`,
       isFaceUp: true,
       rank,
-      red: suit === '♥' || suit === '♦',
+      red: suit === heart|| suit === diamond,
       suit,
     });
   }
@@ -85,7 +89,7 @@ export const Puzzle = ({
       moveCardsAfterWin({
         setSuitCards, setTableauCards, suitCards, tableauCards,
       });
-      //onSuccess();
+      onSuccess();
     }
   }, [tableauCards, wasteCards, stockCards, suitCards]);
   const undoMove = () => {
