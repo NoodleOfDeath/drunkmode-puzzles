@@ -5,7 +5,11 @@ import { PuzzleProps } from 'drunkmode-puzzles';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import Foundation from './components/Foundation';
-import { checkWinningCondition, handleDragEnd } from './components/Logic';
+import {
+  checkWinningCondition,
+  handleDragEnd,
+  moveCardsAfterWin,
+} from './components/Logic';
 import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 export type CardType = {
@@ -78,8 +82,10 @@ export const Puzzle = ({
     if (isWinner && gameHistory.length > 2) {
       console.log('winner!');
 
-      // TODO: move the reset of the tableau cards to the foundation with an animation
-      onSuccess();
+      moveCardsAfterWin({
+        setSuitCards, setTableauCards, suitCards, tableauCards,
+      });
+      //onSuccess();
     }
   }, [tableauCards, wasteCards, stockCards, suitCards]);
   const undoMove = () => {

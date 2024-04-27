@@ -25,7 +25,6 @@ export const handleDragEnd = ({
   setWasteCards: React.Dispatch<React.SetStateAction<CardType[]>>;
 }) => {
   if (!destination) {
-    console.log('Oops');
     return;
   }
 
@@ -130,4 +129,50 @@ export const checkWinningCondition = (tableauCards: CardType[][], wasteCards: Ca
   const wasteEmpty = wasteCards.length === 0;
   const stockEmpty = stockCards.length === 0;
   return allCardsFaceUp && wasteEmpty && stockEmpty;
+};
+
+export const moveCardsAfterWin = ({
+  tableauCards,
+  setTableauCards,
+  suitCards,
+  setSuitCards,
+}: 
+  {tableauCards: CardType[][];
+  setTableauCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
+  suitCards: Array<CardType[]>;
+  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
+  }) => {
+
+  const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
+  tableauCards.forEach((column: any[], columnIndex: number) => {
+    const lastCard = column[column.length-1];
+    if (lastCard) {
+      suitCards.forEach((suit, suitIndex) => {
+        const validMove = isValidFoundationMove([lastCard], suit, suitIndex);
+        if (validMove) {
+          const newFoundation = [...suitCards];
+          const newTableau = [...tableauCards];
+          newFoundation[suitIndex].push(lastCard);
+          newTableau[columnIndex] = newTableau[columnIndex].slice(0, -1);
+          setTableauCards(newTableau);
+          tableauCards = newTableau;
+          console.log(newTableau, tableauCards, columnIndex);
+          setSuitCards(newFoundation);
+          
+        }
+      });
+    }
+    
+  });
+  if (anyCardsLeftInTableau) {
+    moveCardsAfterWin({
+      setSuitCards,
+      setTableauCards,
+      suitCards,
+      tableauCards,
+    });
+  } else {
+    return;
+  }
+
 };
