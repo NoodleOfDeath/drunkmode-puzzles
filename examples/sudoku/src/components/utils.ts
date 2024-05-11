@@ -37,6 +37,9 @@ export const valueIsValidInGrid = (
   col: number,
   num: SudokuValue
 ) => {
+  if (board.length !== size) {
+    return false;
+  }
   for (let x = 0; x < size; x++) {
     const sx = Math.sqrt(size) * Math.floor(row / Math.sqrt(size)) + Math.floor(x / Math.sqrt(size));
     const sy = Math.sqrt(size) * Math.floor(col / Math.sqrt(size)) + x % Math.sqrt(size);

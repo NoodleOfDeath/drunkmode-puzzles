@@ -10,7 +10,7 @@ export type CellCoordinate = {
 };
 
 export type GridProps = {
-  range?: 4 | 9;
+  range: 4 | 9;
   cols?: number;
   rows?: React.ReactNode[][];
   gap?: number;
@@ -35,7 +35,7 @@ const StyledRow = styled.div`
 `;
 
 export const Grid = ({ 
-  range = 9,
+  range,
   rows,
   cellProps,
   cellSize = 30,
@@ -49,14 +49,14 @@ export const Grid = ({
       {rows?.map((cells, row) => {
         return (
           <StyledRow
-            style={ { marginBottom: row > Math.sqrt(range) + 1 ? 0 : (row + 1) % Math.sqrt(range) === 0 ? 2 * gap : gap } }
-            key={ `row-${row}` }>
+            style={ { marginBottom: row > range - Math.sqrt(range) + 1 ? 0 : ((row + 1) % Math.sqrt(range)) === 0 ? (2 * gap) : gap } }
+            key={ `row-${row}-${range}` }>
             {cells.map((value, col) => {
               return (
                 <Cell
-                  key={ `cell-${row}-${col}-${value}` }
+                  key={ `cell-${row}-${col}-${range}-${value}` }
                   size={ cellSize }
-                  style={ { marginRight: col > Math.sqrt(range) + 1 ? 0 : (col + 1) % Math.sqrt(range) === 0 ? 2 * gap : gap } }
+                  style={ { marginRight: col > range - Math.sqrt(range) + 1 ? 0 : ((col + 1) % Math.sqrt(range)) === 0 ? (2 * gap) : gap } }
                   value={ value || '' }
                   selected={ selectedCell?.row === row && selectedCell?.col === col }
                   onSelect={ () => onCellSelect?.({ col, row }) } 

@@ -51,7 +51,7 @@ export const SudokuPuzzle = ({
   ...props
 }: SudokuPuzzleProps) => {
   
-  const [difficulty, setDifficulty] = React.useState('medium' ?? config?.difficulty ?? 'easy');
+  const [difficulty, setDifficulty] = React.useState(config?.difficulty ?? 'easy');
   const [loaded, setLoaded] = React.useState(false);
   const [puzzle, setPuzzle] = React.useState<ReturnType<typeof generateSudokuPuzzle>>({ startingValues, values });
   
@@ -78,7 +78,6 @@ export const SudokuPuzzle = ({
     }
     if (data) {
       try {
-        console.log(data);
         const { startingValues, values } = typeof data === 'string' ? JSON.parse(data) : data;
         setPuzzle({ startingValues, values });
       } catch (e) {
@@ -91,7 +90,7 @@ export const SudokuPuzzle = ({
   }, [startFresh, difficulty, data, loaded]);
   
   React.useEffect(() => {
-    setDifficulty(config?.difficulty ?? 'medium');
+    setDifficulty(config?.difficulty ?? 'easy');
   }, [config?.difficulty]);
   
   return (
@@ -105,6 +104,7 @@ export const SudokuPuzzle = ({
                 backgroundColor: difficulty === diff ? 'black' : 'white', 
                 color: difficulty === diff ? 'white' : 'black', 
               } }
+              className={ difficulty === diff ? 'chip' : undefined }
               onClick={ () => {
                 setDifficulty(diff);
                 onConfig?.({ difficulty: diff });

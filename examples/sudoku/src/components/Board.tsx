@@ -9,7 +9,7 @@ import { SudokuGrid, SudokuValue } from './types';
 import { valueIsValidInGrid } from './utils';
 
 export type NumberSelectorProps = {
-  range?: 4 | 9;
+  range: 4 | 9;
   cellSize?: number;
   remainingNumbers: number[];
   onSelect: (value?: SudokuValue) => void;
@@ -23,7 +23,7 @@ const StyledNumberSelector = styled.div`
 `;
 
 export const NumberSelector = ({ 
-  range = 9,
+  range,
   cellSize = 30,
   remainingNumbers,
   onSelect,
@@ -60,7 +60,7 @@ const StyledBoard = styled.div`
 `;
 
 export type BoardProps = PuzzleProps & {
-  range?: 4 | 9;
+  range: 4 | 9;
   values?: SudokuGrid;
   startingValues: SudokuGrid;
 };
@@ -70,11 +70,12 @@ export type BoardRef = {
 };
 
 export const Board = React.forwardRef(function Board({ 
-  range = 9,
+  range,
   startingValues: startingValues0,
   values: values0 = startingValues0,
   onProgress,
   onMistake,
+  onFailure,
   onSuccess,
   ...props
 }: BoardProps, ref: React.ForwardedRef<BoardRef>) {
@@ -96,7 +97,7 @@ export const Board = React.forwardRef(function Board({
   const cellSize = React.useMemo(() => Math.floor(Math.min(layout?.width ?? 0, layout?.height ?? 0) / range), [layout, range]);
   
   const validate = React.useCallback((values: SudokuGrid, row: number, col: number) => {
-    const value = values[row][col];
+    const value = values[row]?.[col];
     if (!value || valueIsValidInGrid(values, range, row, col, value as SudokuValue)) {
       setInvalidCells((prev) => prev.filter((cell) => cell.row !== row || cell.col !== col));
     } else {
