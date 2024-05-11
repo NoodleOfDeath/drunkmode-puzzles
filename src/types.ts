@@ -250,6 +250,10 @@ export class PuzzleEnv {
   get data() {
     return this.store.data;
   }
+  
+  get colorScheme() {
+    return this.store.colorScheme;
+  }
 
   constructor() {
     try {
