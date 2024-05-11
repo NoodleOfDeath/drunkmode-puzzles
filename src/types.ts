@@ -257,7 +257,7 @@ export class PuzzleEnv {
 
   constructor() {
     try {
-      this.store = { ...(window as any).DrunkMode } as IDrunkMode ?? DevDrunkMode;
+      this.store = (window as any).DrunkMode as IDrunkMode ?? DevDrunkMode;
     } catch (e) {
       this.store = DevDrunkMode;
     }
