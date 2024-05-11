@@ -20,6 +20,7 @@ export type PuzzlePackageInfo = {
   comingSoon?: boolean;
   config?: any;
   data?: any;
+  extra?: any;
 };
 
 export type PuzzlePackageProps = PuzzlePackageInfo & {
@@ -106,45 +107,45 @@ export const DevReactNativeWebView = {
   postMessage: (msg: string) => {
     const { event, data } = PuzzleMessage.from(msg);
     switch (event) {
-      case 'config':
-        (window as any).DrunkMode = {
-          ...(window as any).DrunkMode,
-          config: data,
-        };
-        break;
-      case 'progress':
-        (window as any).DrunkMode = {
-          ...(window as any).DrunkMode,
-          progress: data,
-        };
-        break;
-      case 'mistake':
-        (window as any).alert('You made a mistake!');
-        break;
-      case 'failure':
-        (window as any).alert('You failed the whole puzzle!');
-        break;
-      case 'success':
-        (window as any).alert('Nice job! You completed the puzzle!');
-        break;
-      default:
-        break;
+    case 'config':
+      (window as any).DrunkMode = {
+        ...(window as any).DrunkMode,
+        config: data,
+      };
+      break;
+    case 'progress':
+      (window as any).DrunkMode = {
+        ...(window as any).DrunkMode,
+        progress: data,
+      };
+      break;
+    case 'mistake':
+      (window as any).alert('You made a mistake!');
+      break;
+    case 'failure':
+      (window as any).alert('You failed the whole puzzle!');
+      break;
+    case 'success':
+      (window as any).alert('Nice job! You completed the puzzle!');
+      break;
+    default:
+      break;
     }
-  }
-}
+  },
+};
 
 export type IDrunkMode = {
   config: any;
   data: any;
   preview: boolean;
   colorScheme?: 'dark' | 'light';
-}
+};
 
 export const DevDrunkMode: IDrunkMode = {
   config: {},
   data: {},
   preview: true,
-}
+};
 
 export class PuzzleMessage<
   Event extends PuzzleEvent,
@@ -257,7 +258,7 @@ export class PuzzleEnv {
 
   constructor() {
     try {
-      this.store = (window as any).DrunkMode as IDrunkMode ?? DevDrunkMode;
+      this.store = { ...((window as any).DrunkMode as IDrunkMode ?? DevDrunkMode) };
     } catch (e) {
       this.store = DevDrunkMode;
     }

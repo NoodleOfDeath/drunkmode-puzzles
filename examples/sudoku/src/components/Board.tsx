@@ -71,7 +71,7 @@ export type BoardRef = {
 
 export const Board = React.forwardRef(function Board({ 
   range,
-  startingValues: startingValues0,
+  startingValues: startingValues0 = [],
   values: values0 = startingValues0,
   onProgress,
   onMistake,

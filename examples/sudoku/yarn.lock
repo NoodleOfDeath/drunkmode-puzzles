@@ -414,10 +414,10 @@ drunkmode-puzzles@^0.1.13-c:
   resolved "https://registry.yarnpkg.com/drunkmode-puzzles/-/drunkmode-puzzles-0.1.13-c.tgz#b8be298b9b9d086efb7794f860f945a161b882c9"
   integrity sha512-1k0YdWZR0LtJh7vRhmO6Naagteg3TYhwRsjJFsWX2qcuBUNm8pm3Y2GwsJXDNG+gGpdJ2zO7TWW8/M8+poJksA==
 
-drunkmode-puzzles@^0.1.16:
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/drunkmode-puzzles/-/drunkmode-puzzles-0.1.16.tgz#47ab196f55afd5af32dc4691c8a4e1063d0e8881"
-  integrity sha512-0jXCZONd080ydC3p7gBgAP1fv3EojkmEFVutaLbsFrqg1ubRJrae+Ufiaihuqj4F6AkPaWABtjwEEmNdEEactw==
+drunkmode-puzzles@^0.1.17-a:
+  version "0.1.17-a"
+  resolved "https://registry.yarnpkg.com/drunkmode-puzzles/-/drunkmode-puzzles-0.1.17-a.tgz#3a5befbcc736e7d3997dbb20df1636baaae26700"
+  integrity sha512-EjyQyftoak5PKa9r4L+xLEj2KTxNgmInod+cXswXgLJHG0g7ksXKMXnv9dV/9grykiKfrxnrw9teR5/ALuHKVA==
   dependencies:
     drunkmode-puzzles "^0.1.13-c"
 

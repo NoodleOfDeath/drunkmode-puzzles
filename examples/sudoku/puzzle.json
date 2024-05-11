@@ -5,5 +5,5 @@
   "displayName": "Sudoku",
   "description": "Standard sudoku puzzle with various difficulty levels",
   "author": "DrunkMode",
-  "instructions": "Fill the board with numbers so that every row, column, and 3x3 square contains the numbers 1-9"
+  "instructions": "Fill the board with numbers so that every row, column, and 3x3 square contains the numbers 1-9.\n\nNote: Easy mode will only use numbers 1-4 and the squares will be 2x2.",
 }
