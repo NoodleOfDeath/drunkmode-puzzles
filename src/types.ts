@@ -106,45 +106,45 @@ export const DevReactNativeWebView = {
   postMessage: (msg: string) => {
     const { event, data } = PuzzleMessage.from(msg);
     switch (event) {
-    case 'config':
-      (window as any).DrunkMode = {
-        ...(window as any).DrunkMode,
-        config: data,
-      };
-      break;
-    case 'progress':
-      (window as any).DrunkMode = {
-        ...(window as any).DrunkMode,
-        progress: data,
-      };
-      break;
-    case 'mistake':
-      (window as any).alert('You made a mistake!');
-      break;
-    case 'failure':
-      (window as any).alert('You failed the whole puzzle!');
-      break;
-    case 'success':
-      (window as any).alert('Nice job! You completed the puzzle!');
-      break;
-    default:
-      break;
+      case 'config':
+        (window as any).DrunkMode = {
+          ...(window as any).DrunkMode,
+          config: data,
+        };
+        break;
+      case 'progress':
+        (window as any).DrunkMode = {
+          ...(window as any).DrunkMode,
+          progress: data,
+        };
+        break;
+      case 'mistake':
+        (window as any).alert('You made a mistake!');
+        break;
+      case 'failure':
+        (window as any).alert('You failed the whole puzzle!');
+        break;
+      case 'success':
+        (window as any).alert('Nice job! You completed the puzzle!');
+        break;
+      default:
+        break;
     }
-  },
-};
+  }
+}
 
 export type IDrunkMode = {
   config: any;
   data: any;
   preview: boolean;
   colorScheme?: 'dark' | 'light';
-};
+}
 
 export const DevDrunkMode: IDrunkMode = {
   config: {},
   data: {},
-  preview: false,
-};
+  preview: true,
+}
 
 export class PuzzleMessage<
   Event extends PuzzleEvent,
@@ -196,7 +196,7 @@ export class PuzzleMessage<
   public static onProgress(data?: any) {
     (new PuzzleMessage('progress', data)).post();
   }
-
+  
   /**
    * Call this method when the user makes a mistake in the puzzle.
    * 
@@ -249,10 +249,6 @@ export class PuzzleEnv {
 
   get data() {
     return this.store.data;
-  }
-
-  get colorScheme() {
-    return this.store.colorScheme;
   }
 
   constructor() {

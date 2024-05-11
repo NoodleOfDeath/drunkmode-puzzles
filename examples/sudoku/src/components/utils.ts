@@ -10,7 +10,7 @@ export const SUDOKU_DIFFICULTIES = {
 export type SudokuGenerationOptions = {
   difficulty?: keyof typeof SUDOKU_DIFFICULTIES;
   emptyCount?: number;
-  size?: number;
+  size?: 4 | 9;
 };
 
 const shuffle = <T>(array: T[]) => {
@@ -28,11 +28,11 @@ const shuffle = <T>(array: T[]) => {
   return array;
 };
 
-export const generateEmptyGrid: (size: 4 | 9) => SudokuGrid = (size = 9) => new Array(size).fill(0).map(() => new Array(size).fill(0));
+export const generateEmptyGrid: (size: 4 | 9) => SudokuGrid = (size) => new Array(size).fill(0).map(() => new Array(size).fill(0));
 
 export const valueIsValidInGrid = (
   board: SudokuGrid,
-  size: number,
+  size: 4 | 9,
   row: number,
   col: number,
   num: SudokuValue
@@ -50,7 +50,7 @@ export const valueIsValidInGrid = (
   return true;
 };
 
-export const solveGrid = (board: SudokuGrid, size: 4 | 9 = 9) => {
+export const solveGrid = (board: SudokuGrid, size: 4 | 9) => {
   const solved = board.map((row) => [...row]);
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
@@ -103,8 +103,6 @@ export const generateSudokuPuzzle = ({
       i--;
     }
   }
-  
-  alert(board);
 
   return {
     startingValues: board,

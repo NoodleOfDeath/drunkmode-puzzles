@@ -51,7 +51,7 @@ export const SudokuPuzzle = ({
   ...props
 }: SudokuPuzzleProps) => {
   
-  const [difficulty, setDifficulty] = React.useState(config?.difficulty ?? 'easy');
+  const [difficulty, setDifficulty] = React.useState('medium' ?? config?.difficulty ?? 'easy');
   const [loaded, setLoaded] = React.useState(false);
   const [puzzle, setPuzzle] = React.useState<ReturnType<typeof generateSudokuPuzzle>>({ startingValues, values });
   
@@ -91,7 +91,7 @@ export const SudokuPuzzle = ({
   }, [startFresh, difficulty, data, loaded]);
   
   React.useEffect(() => {
-    setDifficulty(config?.difficulty ?? 'easy');
+    setDifficulty(config?.difficulty ?? 'medium');
   }, [config?.difficulty]);
   
   return (
