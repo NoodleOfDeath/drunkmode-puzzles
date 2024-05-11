@@ -1,9 +1,10 @@
 import { SudokuGrid, SudokuValue } from './types';
 
 export const SUDOKU_DIFFICULTIES = {
-  easy: 20,
-  hard: 40,
-  medium: 30,
+  easy: 6,
+  extreme: 45,
+  hard: 25,
+  medium: 15,
 };
 
 export type SudokuGenerationOptions = {
@@ -27,7 +28,7 @@ const shuffle = <T>(array: T[]) => {
   return array;
 };
 
-export const generateEmptyGrid: (size: number) => SudokuGrid = (size = 9) => new Array(size).fill(0).map(() => new Array(size).fill(0));
+export const generateEmptyGrid: (size: 4 | 9) => SudokuGrid = (size = 9) => new Array(size).fill(0).map(() => new Array(size).fill(0));
 
 export const valueIsValidInGrid = (
   board: SudokuGrid,
@@ -37,8 +38,8 @@ export const valueIsValidInGrid = (
   num: SudokuValue
 ) => {
   for (let x = 0; x < size; x++) {
-    const sx = 3 * Math.floor(row / 3) + Math.floor(x / 3);
-    const sy = 3 * Math.floor(col / 3) + x % 3;
+    const sx = Math.sqrt(size) * Math.floor(row / Math.sqrt(size)) + Math.floor(x / Math.sqrt(size));
+    const sy = Math.sqrt(size) * Math.floor(col / Math.sqrt(size)) + x % Math.sqrt(size);
     if (
       (x !== col && board[row][x] === num) ||
       (x !== row && board[x][col] === num) ||
@@ -49,7 +50,7 @@ export const valueIsValidInGrid = (
   return true;
 };
 
-export const solveGrid = (board: SudokuGrid, size = 9) => {
+export const solveGrid = (board: SudokuGrid, size: 4 | 9 = 9) => {
   const solved = board.map((row) => [...row]);
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
@@ -58,7 +59,7 @@ export const solveGrid = (board: SudokuGrid, size = 9) => {
         for (const num of nums) {
           if (valueIsValidInGrid(solved, size, row, col, num)) {
             solved[row][col] = num;
-            const result = solveGrid(solved) as SudokuGrid;
+            const result = solveGrid(solved, size) as SudokuGrid;
             if (result) {
               return result;
             } else {
@@ -76,10 +77,10 @@ export const solveGrid = (board: SudokuGrid, size = 9) => {
 export const generateSudokuPuzzle = ({
   difficulty = 'easy',
   emptyCount = SUDOKU_DIFFICULTIES[difficulty],
-  size = 9,
+  size = difficulty === 'easy' ? 4 : 9,
 }: SudokuGenerationOptions = {}) => {
 
-  const solution = solveGrid(generateEmptyGrid(size));
+  const solution = solveGrid(generateEmptyGrid(size), size);
 
   if (!solution) {
     throw new Error('Failed to generate a solution');
@@ -93,7 +94,7 @@ export const generateSudokuPuzzle = ({
     const prev = board[x][y];
     if (prev !== 0) {
       board[x][y] = 0;
-      const result = solveGrid(board);
+      const result = solveGrid(board, size);
       if (!result) {
         board[x][y] = prev;
         i--;
@@ -102,6 +103,8 @@ export const generateSudokuPuzzle = ({
       i--;
     }
   }
+  
+  alert(board);
 
   return {
     startingValues: board,

@@ -98,7 +98,7 @@ export const SudokuPuzzle = ({
     <StyledPuzzle>
       {props.preview ? (
         <StyledDifficulties>
-          {['easy', 'medium', 'hard'].map((diff) => (
+          {['easy', 'medium', 'hard', 'extreme'].map((diff) => (
             <StyledButton
               key={ diff }
               style={ { 
@@ -122,6 +122,7 @@ export const SudokuPuzzle = ({
       )}
       <Board
         ref={ boardRef }
+        range={ difficulty === 'easy' ? 4 : 9 }
         { ...puzzle }
         { ...props } />
       <StyledRow>
