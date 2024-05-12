@@ -15,7 +15,10 @@ export type SudokuPuzzleProps = PuzzleProps & {
 const StyledPuzzle = styled.div`
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   gap: 1rem;
+  align-items: center;
+  justify-content: center;
 `;
 
 const StyledDifficulties = styled.div`

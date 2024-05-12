@@ -49,14 +49,14 @@ export const Grid = ({
       {rows?.map((cells, row) => {
         return (
           <StyledRow
-            style={ { marginBottom: row > range - Math.sqrt(range) + 1 ? 0 : ((row + 1) % Math.sqrt(range)) === 0 ? (2 * gap) : gap } }
+            style={ { marginBottom: row > range - 2 ? 0 : ((row + 1) % Math.sqrt(range)) === 0 ? (2 * gap) : gap } }
             key={ `row-${row}-${range}` }>
             {cells.map((value, col) => {
               return (
                 <Cell
                   key={ `cell-${row}-${col}-${range}-${value}` }
                   size={ cellSize }
-                  style={ { marginRight: col > range - Math.sqrt(range) + 1 ? 0 : ((col + 1) % Math.sqrt(range)) === 0 ? (2 * gap) : gap } }
+                  style={ { marginRight: col > range - 2 ? 0 : ((col + 1) % Math.sqrt(range)) === 0 ? (2 * gap) : gap } }
                   value={ value || '' }
                   selected={ selectedCell?.row === row && selectedCell?.col === col }
                   onSelect={ () => onCellSelect?.({ col, row }) } 
