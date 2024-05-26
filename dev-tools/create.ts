@@ -1,5 +1,6 @@
 import fs from 'fs';
 import p from 'path';
+import { execSync } from 'child_process';
 
 import { ArgumentParser } from 'argparse';
 
@@ -35,3 +36,5 @@ fs.writeFileSync(p.join(TARGET_DIR, 'puzzle.json'), JSON.stringify(puzzleInfo, n
 const packageInfo = JSON.parse(fs.readFileSync(p.join(TARGET_DIR, 'package.json')).toString());
 packageInfo.name = args.appId;
 fs.writeFileSync(p.join(TARGET_DIR, 'package.json'), JSON.stringify(packageInfo, null, 2));
+
+execSync(`cd ${TARGET_DIR} && yarn && yarn add drunkmode-puzzles@latest`);
