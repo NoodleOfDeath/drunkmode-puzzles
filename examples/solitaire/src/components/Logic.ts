@@ -1,31 +1,40 @@
 // Logic.ts
 import {
-  CardType,
-  ranks,
-  suits,
-} from './../SolitairePuzzle';
+  CardProps,
+  RANKS,
+  SUITS,
+} from '~/SolitairePuzzle';
 
 export const handleDragEnd = ({
   source,
   destination,
   tableauCards,
-  setTableauCards,
   suitCards,
-  setSuitCards,
   wasteCards,
-  setWasteCards,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   destination: any;
-  tableauCards: CardType[][];
-  setTableauCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
-  suitCards: Array<CardType[]>;
-  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
-  wasteCards: CardType[];
-  setWasteCards: React.Dispatch<React.SetStateAction<CardType[]>>;
+  tableauCards: CardProps[][];
+  suitCards: Array<CardProps[]>;
+  wasteCards: CardProps[];
 }) => {
+
+  const uTableau = [...tableauCards];
+  const uSuit = [...suitCards];
+  let uWaste = [...wasteCards];
+  const uFlipped: CardProps[] = [];
+  let failure = true;
+
   if (!destination) {
-    return;
+    return {
+      failure,
+      uFlipped,
+      uSuit,
+      uTableau, 
+      uWaste, 
+    };
   }
 
   const sParts = source.droppableId.split('-');
@@ -41,88 +50,100 @@ export const handleDragEnd = ({
   if (isCol(sParts)) {
     if (isCol(dParts) && sColIdx !== dColIdx) {
       // Moving cards between tableau columns
-      const uTableau = [...tableauCards];
       const cardsToMove = uTableau[sColIdx].slice(sIdx);
       const validMove = isValidTableauMove(cardsToMove, uTableau[dColIdx]);
       if (validMove) {
         uTableau[dColIdx] = uTableau[dColIdx].concat(cardsToMove);
         uTableau[sColIdx] = uTableau[sColIdx].slice(0, sIdx);
-        setTableauCards(uTableau);
+        failure = false;
       }
     } else if (isSuit(dParts)) {
       // Moving cards from tableau to foundation
-      const uSuit = [...suitCards];
-      const uTableau = [...tableauCards];
       const cardsToMove = uTableau[sColIdx].slice(sIdx);
       const validMove = isValidFoundationMove(cardsToMove, uSuit[dColIdx], dColIdx);
       if (validMove) {
         uSuit[dColIdx] = uSuit[dColIdx].concat(cardsToMove);
         uTableau[sColIdx] = uTableau[sColIdx].slice(0, sIdx);
-        setSuitCards(uSuit);
-        setTableauCards(uTableau);
+        failure = false;
       }
     }
   } else if (sParts[0] === 'waste') {
     // Moving cards from waste to tableau or foundation
-    const uTableau = [...tableauCards];
-    const cardsToMove = wasteCards.slice(-1);
+    const cardsToMove = uWaste.slice(-1);
     if (isCol(dParts)) {
       const validMove = isValidTableauMove(cardsToMove, uTableau[dColIdx]);
       if (validMove) {
         uTableau[dColIdx] = uTableau[dColIdx].concat(cardsToMove);
-        setTableauCards(uTableau);
-        setWasteCards(wasteCards.slice(0, -1));
+        uWaste = uWaste.slice(0, -1);
+        failure = false;
       }
     } else if (isSuit(dParts)) {
-      const uSuit = [...suitCards];
       const validMove = isValidFoundationMove(cardsToMove, uSuit[dColIdx], dColIdx);
       if (validMove) {
         uSuit[dColIdx] = uSuit[dColIdx].concat(cardsToMove);
-        setSuitCards(uSuit);
-        setWasteCards(wasteCards.slice(0, -1));
+        uWaste = uWaste.slice(0, -1);
+        failure = false;
       }
     }
   } else if (isSuit(sParts) && isCol(dParts)) {
     // Moving cards from foundation to tableau
-    const uSuit = [...suitCards];
-    const uTableau = [...tableauCards];
     const cardsToMove = uSuit[sColIdx].slice(sIdx);
     const validMove = isValidTableauMove(cardsToMove, uTableau[dColIdx]);
     if (validMove) {
       uTableau[dColIdx] = uTableau[dColIdx].concat(cardsToMove);
       uSuit[sColIdx] = uSuit[sColIdx].slice(0, sIdx);
-      setSuitCards(uSuit);
-      setTableauCards(uTableau);
+      failure = false;
     }
   }
+
+  // flip cards programmtically for saving state later
+  uTableau.forEach((column) => {
+    if (column.length === 0) {
+      return;
+    }
+    const lastCard = column[column.length - 1];
+    if (!lastCard.isFaceUp) {
+      lastCard.isFaceUp = true;
+      uFlipped.push(lastCard);
+    }
+  });
+
+  return {
+    failure,
+    uFlipped,
+    uSuit,
+    uTableau, 
+    uWaste, 
+  };
+
 };
 
-const isValidTableauMove = (cardsToMove: CardType[], destinationColumn: CardType[]) => {
+const isValidTableauMove = (cardsToMove: CardProps[], destinationColumn: CardProps[]) => {
   if (destinationColumn.length === 0) {
     return cardsToMove[0].rank === 'K'; 
   }
   const lastCard = destinationColumn[destinationColumn.length - 1];
   const firstCardToMove = cardsToMove[0];
   return (
-    ranks.indexOf(firstCardToMove.rank) === ranks.indexOf(lastCard.rank) -1 &&
+    RANKS.indexOf(firstCardToMove.rank) === RANKS.indexOf(lastCard.rank) -1 &&
     lastCard.red !== firstCardToMove.red
   );
 };
 
-const isValidFoundationMove = (cardsToMove: CardType[], foundationPile: CardType[], suitIndex: number) => {
+const isValidFoundationMove = (cardsToMove: CardProps[], foundationPile: CardProps[], suitIndex: number) => {
   if (foundationPile.length === 0) {
-    return cardsToMove[0].rank === 'A' && cardsToMove[0].suit === suits[suitIndex];
+    return cardsToMove[0].rank === 'A' && cardsToMove[0].suit === Object.keys(SUITS)[suitIndex];
   }
   const lastCard = foundationPile[foundationPile.length - 1];
   const firstCardToMove = cardsToMove[0];
   return (
     firstCardToMove.suit === lastCard.suit &&
-    ranks.indexOf(firstCardToMove.rank) === ranks.indexOf(lastCard.rank) +1
+    RANKS.indexOf(firstCardToMove.rank) === RANKS.indexOf(lastCard.rank) +1
   );
 };
 
 // wheck win 
-export const checkWinningCondition = (tableauCards: CardType[][], wasteCards: CardType[], stockCards: CardType[]) => {
+export const checkWinningCondition = (tableauCards: CardProps[][], wasteCards: CardProps[], stockCards: CardProps[]) => {
   // Check if all cards in the tableau are face up
   const allCardsFaceUp = tableauCards.every((column) => column.every((card) => card.isFaceUp));
   // Check if the waste & stock pile is empty
@@ -137,13 +158,14 @@ export const moveCardsAfterWin = ({
   suitCards,
   setSuitCards,
 }: 
-  {tableauCards: CardType[][];
-  setTableauCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
-  suitCards: Array<CardType[]>;
-  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
+  {tableauCards: CardProps[][];
+  setTableauCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
+  suitCards: Array<CardProps[]>;
+  setSuitCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
   }) => {
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tableauCards.forEach((column: any[], columnIndex: number) => {
     const lastCard = column[column.length-1];
     if (lastCard) {
@@ -157,12 +179,11 @@ export const moveCardsAfterWin = ({
           setTableauCards(newTableau);
           tableauCards = newTableau;
           setSuitCards(newFoundation);
-          
         }
       });
     }
-    
   });
+
   if (anyCardsLeftInTableau) {
     moveCardsAfterWin({
       setSuitCards,

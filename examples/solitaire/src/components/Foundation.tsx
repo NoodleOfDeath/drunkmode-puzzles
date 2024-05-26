@@ -7,13 +7,12 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import Card from './Card';
 import { getStyle } from './Tableau';
 
-import { CardType } from '~/SolitairePuzzle';
+import { CardProps } from '~/SolitairePuzzle';
 
 interface FoundationProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   suits: any[];
-  suitCards: CardType[][]; 
-  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
-
+  suitCards: CardProps[][]; 
 }
 
 const Foundation: React.FC<FoundationProps> = ({ suits, suitCards }) => {

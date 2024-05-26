@@ -1,7 +1,7 @@
 {
   "name": "app.drunkmode.DrunkMode.solitaire",
   "version": "1.0.0",
-  "icon": "solitaire-cards",
+  "icon": "cards-playing-club-multiple",
   "displayName": "Solitaire",
   "description": "Classic Solitaire puzzle with various difficulty levels",
   "author": "Tris Bouden",

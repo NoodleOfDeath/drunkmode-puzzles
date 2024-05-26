@@ -5,36 +5,24 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 
 import Card from './Card';
 
-import { CardType } from '~/SolitairePuzzle';
+import { CardProps } from '~/SolitairePuzzle';
 
 interface StockProps {
-  cards: CardType[];
-  wasteCards: CardType[]; 
-  setWasteCards: React.Dispatch<React.SetStateAction<CardType[]>>;
-  setStockCards: React.Dispatch<React.SetStateAction<CardType[]>>;
+  cards: CardProps[];
+  wasteCards: CardProps[]; 
+  onDrawCard: () => void;
 }
 
 const Stock: React.FC<StockProps> = ({
-  cards, wasteCards, setWasteCards, setStockCards,
+  cards = [], 
+  wasteCards = [], 
+  onDrawCard,
 }) => {
-  
-  const handleDrawCard = () => {
-    if (cards.length > 0) {
-      const lastCard = cards[cards.length - 1]; 
-      lastCard.isFaceUp = true;
-      setWasteCards([...wasteCards, lastCard]);
-      setStockCards(cards.slice(0, -1)); 
-    } else {
-      const resetWasteCards = wasteCards.map(card => ({ ...card, isFaceUp: false }));
-      setStockCards(resetWasteCards.reverse());
-      setWasteCards([]); 
-    }
-  };
 
   return (
     <React.Fragment>
       <div className='flex py-2 gap-3 w-fit'>
-        <div onClick={ handleDrawCard } className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
+        <div onClick={ onDrawCard } className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
           {cards.map((card, cardIndex) => (
             <div key={ cardIndex } style={ { position: 'absolute', top: `${cardIndex * 0.02}rem` } }>
               <Card key={ cardIndex } { ...card } isFaceUp={ false } />
