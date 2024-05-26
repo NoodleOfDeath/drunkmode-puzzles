@@ -4,10 +4,6 @@ import React from 'react';
 import { PuzzleProps } from 'drunkmode-puzzles';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import club from './assets/club.png';
-import diamond from './assets/diamond.png';
-import heart from './assets/heart.png';
-import spade from './assets/spade.png';
 import Foundation from './components/Foundation';
 import {
   checkWinningCondition,
@@ -18,10 +14,10 @@ import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 
 export const SUITS = {
-  club,
-  diamond,
-  heart,
-  spade,
+  club: './club.png',
+  diamond: './diamond.png',
+  heart: './heart.png',
+  spade: './spade.png',
 } as const;
 
 export type Suit = keyof typeof SUITS;
@@ -212,7 +208,9 @@ export const Puzzle = ({
   }, [onMistake, onProgress, onSuccess, stockCards, suitCards, tableauCards, wasteCards]);
   
   return (
-    <div className="flex flex-col px-2 w-full max-w-screen-lg mx-auto max-h-screen justify-center overscroll-none select-none">
+    <div
+      className="flex flex-col px-2 w-full max-w-screen-lg mx-auto min-h-screen justify-center overscroll-none select-none"
+      style={ { flexGrow: 1 } }>
       {props.preview && (
         <React.Fragment>
         </React.Fragment>
@@ -243,8 +241,7 @@ export const Puzzle = ({
         </div>
         <Tableau tableauCards={ tableauCards } />
       </DragDropContext>
-      <div className="grow h-24" />
-      <div className="flex justify-center gap-6 mb-2">
+      <div className="flex justify-center gap-6 mb-24">
         <button 
           className='px-3 py-2 rounded-sm duration-300 cursor-pointer hover:bg-red-700/60'
           onClick={ undoMove }>

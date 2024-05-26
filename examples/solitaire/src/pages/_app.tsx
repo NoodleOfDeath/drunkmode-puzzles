@@ -2,7 +2,7 @@
 import React from 'react';
 
 // it's just for tailwind css
-import './../assets/global.css';
+import '../../public/global.css';
 
 import { AppProps } from 'next/app';
 import Head from 'next/head';

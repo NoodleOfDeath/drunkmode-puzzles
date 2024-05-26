@@ -16,6 +16,8 @@ fs.writeFileSync(
   p.join(OUT_DIR, 'index.html'),
   text
     .replace(/src="\//g, 'src="./')
+    .replace(/href="\//g, 'href="./')
+    .replace(/loading="lazy" /g, '')
     .replace(/ crossorigin=""/g, ''),
   'utf8'
 );

@@ -8,8 +8,6 @@ import {
   SUITS,
   Suit,
 } from '~/SolitairePuzzle';
-import AppIcon from '~/assets/AppIcon.png';
-
 interface CardProps {
   id: `${Suit}${Rank}`;
   suit: Suit;
@@ -41,7 +39,7 @@ const Card: React.FC<CardProps> = ({
         </React.Fragment>
       ) : (
         <div className="p-[1vw] md:p-2 h-full w-full flex justify-center items-center bg-[#4a7ecf] border-white border-[0.5vw] md:rounded-md rounded">
-          <Image src={ AppIcon } alt='Drunk mode App Icon' />
+          <Image src={ './AppIcon.png' } alt='Drunk mode App Icon' />
         </div>
       )}
     </div>
