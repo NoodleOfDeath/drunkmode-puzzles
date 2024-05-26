@@ -31,37 +31,34 @@ export const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q
 
 export type Rank = typeof RANKS[number];
 
-export type CardType = {
+export type CardProps = {
   id: `${Suit}${Rank}`;
-  isFaceUp: boolean; 
+  suit: Suit;
   rank: Rank;
-  red: boolean; 
-  suitName: Suit;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  suit: any;
+  isFaceUp: boolean;
+  red: boolean;
 };
 
 // Generate all 52 cards
-const DECK: CardType[] = [];
-for (const [suitName, suit] of Object.entries(SUITS)) {
+const DECK: CardProps[] = [];
+for (const suit of Object.keys(SUITS) as Suit[]) {
   for (const rank of RANKS) {
     DECK.push({
-      id: `${suitName as Suit}${rank}`,
+      id: `${suit}${rank}`,
       isFaceUp: true,
       rank,
-      red: suitName === 'heart' || suitName === 'diamond',
+      red: suit === 'heart' || suit === 'diamond',
       suit,
-      suitName: suitName as Suit,
     });
   }
 }
 
 export type HistoryState = {
-  flippedCards: CardType[];
-  stockCards: CardType[];
-  suitCards: CardType[][];
-  tableauCards: CardType[][];
-  wasteCards: CardType[];
+  flippedCards: CardProps[];
+  stockCards: CardProps[];
+  suitCards: CardProps[][];
+  tableauCards: CardProps[][];
+  wasteCards: CardProps[];
 };
 
 export const Puzzle = ({
@@ -77,16 +74,16 @@ export const Puzzle = ({
 }: PuzzleProps) => {
   
   const [loaded, setLoaded] = React.useState(false);
-  const [tableauCards, setTableauCards] = React.useState<CardType[][]>([]);
-  const [wasteCards, setWasteCards] = React.useState<CardType[]>([]); 
-  const [stockCards, setStockCards] = React.useState<CardType[]>([]);
-  const [suitCards, setSuitCards] = React.useState<CardType[][]>([[], [], [], []]);
+  const [tableauCards, setTableauCards] = React.useState<CardProps[][]>([]);
+  const [wasteCards, setWasteCards] = React.useState<CardProps[]>([]); 
+  const [stockCards, setStockCards] = React.useState<CardProps[]>([]);
+  const [suitCards, setSuitCards] = React.useState<CardProps[][]>([[], [], [], []]);
   const [_, setGameHistory] = React.useState<HistoryState[]>([]);
   
   const setCards = React.useCallback(() => {
     const shuffledCards = [...DECK].sort(() => Math.random() - 0.5);
     setTableauCards(() => {
-      const cards: CardType[][] = [];
+      const cards: CardProps[][] = [];
       let currentIndex = 0;
       for (let i = 1; i <= 7; i++) {
         const column = [];

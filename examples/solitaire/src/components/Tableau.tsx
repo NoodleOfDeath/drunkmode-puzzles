@@ -11,10 +11,10 @@ import {
 
 import Card from './Card';
 
-import { CardType } from '~/SolitairePuzzle';
+import { CardProps } from '~/SolitairePuzzle';
 
 interface TableauProps {
-  tableauCards: CardType[][];
+  tableauCards: CardProps[][];
 }
 
 // stop reordering animation 

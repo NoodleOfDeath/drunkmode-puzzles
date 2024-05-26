@@ -1,6 +1,6 @@
 // Logic.ts
 import {
-  CardType,
+  CardProps,
   RANKS,
   SUITS,
 } from '~/SolitairePuzzle';
@@ -16,15 +16,15 @@ export const handleDragEnd = ({
   source: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   destination: any;
-  tableauCards: CardType[][];
-  suitCards: Array<CardType[]>;
-  wasteCards: CardType[];
+  tableauCards: CardProps[][];
+  suitCards: Array<CardProps[]>;
+  wasteCards: CardProps[];
 }) => {
 
   const uTableau = [...tableauCards];
   const uSuit = [...suitCards];
   let uWaste = [...wasteCards];
-  const uFlipped: CardType[] = [];
+  const uFlipped: CardProps[] = [];
   let failure = true;
 
   if (!destination) {
@@ -118,7 +118,7 @@ export const handleDragEnd = ({
 
 };
 
-const isValidTableauMove = (cardsToMove: CardType[], destinationColumn: CardType[]) => {
+const isValidTableauMove = (cardsToMove: CardProps[], destinationColumn: CardProps[]) => {
   if (destinationColumn.length === 0) {
     return cardsToMove[0].rank === 'K'; 
   }
@@ -130,9 +130,9 @@ const isValidTableauMove = (cardsToMove: CardType[], destinationColumn: CardType
   );
 };
 
-const isValidFoundationMove = (cardsToMove: CardType[], foundationPile: CardType[], suitIndex: number) => {
+const isValidFoundationMove = (cardsToMove: CardProps[], foundationPile: CardProps[], suitIndex: number) => {
   if (foundationPile.length === 0) {
-    return cardsToMove[0].rank === 'A' && cardsToMove[0].suit === Object.values(SUITS)[suitIndex];
+    return cardsToMove[0].rank === 'A' && cardsToMove[0].suit === Object.keys(SUITS)[suitIndex];
   }
   const lastCard = foundationPile[foundationPile.length - 1];
   const firstCardToMove = cardsToMove[0];
@@ -143,7 +143,7 @@ const isValidFoundationMove = (cardsToMove: CardType[], foundationPile: CardType
 };
 
 // wheck win 
-export const checkWinningCondition = (tableauCards: CardType[][], wasteCards: CardType[], stockCards: CardType[]) => {
+export const checkWinningCondition = (tableauCards: CardProps[][], wasteCards: CardProps[], stockCards: CardProps[]) => {
   // Check if all cards in the tableau are face up
   const allCardsFaceUp = tableauCards.every((column) => column.every((card) => card.isFaceUp));
   // Check if the waste & stock pile is empty
@@ -158,10 +158,10 @@ export const moveCardsAfterWin = ({
   suitCards,
   setSuitCards,
 }: 
-  {tableauCards: CardType[][];
-  setTableauCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
-  suitCards: Array<CardType[]>;
-  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
+  {tableauCards: CardProps[][];
+  setTableauCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
+  suitCards: Array<CardProps[]>;
+  setSuitCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
   }) => {
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);

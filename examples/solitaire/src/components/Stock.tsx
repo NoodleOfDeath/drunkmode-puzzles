@@ -5,11 +5,11 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 
 import Card from './Card';
 
-import { CardType } from '~/SolitairePuzzle';
+import { CardProps } from '~/SolitairePuzzle';
 
 interface StockProps {
-  cards: CardType[];
-  wasteCards: CardType[]; 
+  cards: CardProps[];
+  wasteCards: CardProps[]; 
   onDrawCard: () => void;
 }
 
