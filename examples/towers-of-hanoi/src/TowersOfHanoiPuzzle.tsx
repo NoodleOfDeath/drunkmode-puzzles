@@ -106,7 +106,7 @@ export const Disk = ({
 export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
   onConfig,
   onProgress,
-  onFailure,
+  onMistake,
   onSuccess,
   startFresh,
   config,
@@ -151,7 +151,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
         state[to].push(fromDisk);
         state[from].pop();
       } else {
-        onFailure();
+        onMistake();
       }
       onProgress?.({ towers: state });
       return state;

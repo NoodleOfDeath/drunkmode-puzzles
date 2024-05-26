@@ -19,18 +19,18 @@ export type PuzzleCanvasProps = {
 
 const ZERO_LAYOUT: Layout = { height: 0, width: 0 };
 
-const StyledMain = styled('main')<{ height: number; colorScheme: 'dark' | 'light' }>`
+const StyledMain = styled('main')<{ height: number; colorScheme?: 'dark' | 'light' }>`
   display: flex;
   flex-direction: column;
   min-height: ${({ height }) => height}px;
-  background-color: ${({ colorScheme }) => colorScheme === 'dark' ? '#111111' : '#ffffff' },
+  background-color: ${({ colorScheme = 'light' }) => colorScheme === 'dark' ? '#111111' : '#ffffff' },
 `;
 
 export const PuzzleCanvas = ({ puzzle: ChildComponent }: PuzzleCanvasProps) => {
 
   const [env, setEnv] = React.useState<PuzzleEnv>();
   const [layout, setLayout] = React.useState(ZERO_LAYOUT);
-  const [colorScheme, setColorScheme] = React.useState<string>();
+  const [colorScheme, setColorScheme] = React.useState<'dark' | 'light'>();
 
   React.useLayoutEffect(() => {
     const updateLayout = () => {
@@ -59,13 +59,13 @@ export const PuzzleCanvas = ({ puzzle: ChildComponent }: PuzzleCanvasProps) => {
   }, []);
   
   React.useEffect(() => {
-    const updateColorScheme = (e) => {
-      setColorScheme(e.matches ? 'dark' : 'light')
-    }
+    const updateColorScheme = (e: MediaQueryListEvent) => {
+      setColorScheme(e.matches ? 'dark' : 'light');
+    };
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateColorScheme);
     return () => {
       window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', updateColorScheme);
-    }
+    };
   }, []);
 
   return (
