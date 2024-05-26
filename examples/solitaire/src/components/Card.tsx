@@ -3,7 +3,7 @@ import React from 'react';
 
 import Image from 'next/image';
 
-import AppIcon from './../assets/AppIcon.png';
+import AppIcon from '~/assets/AppIcon.png';
 interface CardProps {
   id: string;
   suit: string;

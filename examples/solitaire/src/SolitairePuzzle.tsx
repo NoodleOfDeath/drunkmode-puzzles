@@ -242,8 +242,7 @@ export const Puzzle = ({
             } } />
           <Foundation 
             suits={ Object.values(SUITS) }
-            suitCards={ suitCards }
-            setSuitCards={ setSuitCards } /> 
+            suitCards={ suitCards } /> 
         </div>
         <Tableau tableauCards={ tableauCards } />
       </DragDropContext>
