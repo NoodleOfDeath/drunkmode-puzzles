@@ -14,7 +14,7 @@ import Card from './Card';
 import { CardType } from '~/SolitairePuzzle';
 
 interface TableauProps {
-  tableauCards: CardType[][]
+  tableauCards: CardType[][];
 }
 
 // stop reordering animation 
@@ -34,7 +34,7 @@ export function getStyle(style: DraggingStyle | NotDraggingStyle | undefined, sn
 }
 
 const Tableau: React.FC<TableauProps> = ({ tableauCards }) => {
-  
+
   return (
     
     <div className="grid w-full grid-cols-7 justify-items-center flex-1">
@@ -50,7 +50,6 @@ const Tableau: React.FC<TableauProps> = ({ tableauCards }) => {
                 if (!card) { 
                   return null;
                 }
-                (cardIndex === column.length - 1)? (card.isFaceUp = true) : '';
                 return (
                   <Draggable
                     isDragDisabled={ !card.isFaceUp }

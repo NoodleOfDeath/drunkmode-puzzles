@@ -10,10 +10,10 @@ import { getStyle } from './Tableau';
 import { CardType } from '~/SolitairePuzzle';
 
 interface FoundationProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   suits: any[];
   suitCards: CardType[][]; 
-  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>;
-
+  setSuitCards: React.Dispatch<React.SetStateAction<CardType[][]>>; 
 }
 
 const Foundation: React.FC<FoundationProps> = ({ suits, suitCards }) => {

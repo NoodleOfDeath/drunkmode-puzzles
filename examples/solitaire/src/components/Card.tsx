@@ -11,6 +11,7 @@ interface CardProps {
   isFaceUp: boolean;
   red: boolean;
 }
+
 const Card: React.FC<CardProps> = ({
   suit, rank, isFaceUp, red,
 }) => {
