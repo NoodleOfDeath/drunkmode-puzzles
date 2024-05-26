@@ -25,10 +25,11 @@ export const handleDragEnd = ({
   const uSuit = [...suitCards];
   let uWaste = [...wasteCards];
   const uFlipped: CardType[] = [];
+  let failure = true;
 
   if (!destination) {
     return {
-      failure: true,
+      failure,
       uFlipped,
       uSuit,
       uTableau, 
@@ -45,8 +46,6 @@ export const handleDragEnd = ({
   const sColIdx = parseInt(sParts[1]);
   const dColIdx = parseInt(dParts[1]);
   const sIdx = source.index;
-
-  let failure = true;
 
   if (isCol(sParts)) {
     if (isCol(dParts) && sColIdx !== dColIdx) {
@@ -97,6 +96,7 @@ export const handleDragEnd = ({
     }
   }
 
+  // flip cards programmtically for saving state later
   uTableau.forEach((column) => {
     if (column.length === 0) {
       return;
