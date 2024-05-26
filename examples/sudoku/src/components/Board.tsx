@@ -9,6 +9,7 @@ import { SudokuGrid, SudokuValue } from './types';
 import { valueIsValidInGrid } from './utils';
 
 export type NumberSelectorProps = {
+  range: 4 | 9;
   cellSize?: number;
   remainingNumbers: number[];
   onSelect: (value?: SudokuValue) => void;
@@ -22,6 +23,7 @@ const StyledNumberSelector = styled.div`
 `;
 
 export const NumberSelector = ({ 
+  range,
   cellSize = 30,
   remainingNumbers,
   onSelect,
@@ -30,7 +32,7 @@ export const NumberSelector = ({
   return (
     <StyledNumberSelector 
       { ...props }>
-      {Array(10).fill(0).map((_, i) => {
+      {Array(range + 1).fill(0).map((_, i) => {
         const value = i as SudokuValue;
         return (
           <Cell
@@ -58,6 +60,7 @@ const StyledBoard = styled.div`
 `;
 
 export type BoardProps = PuzzleProps & {
+  range: 4 | 9;
   values?: SudokuGrid;
   startingValues: SudokuGrid;
 };
@@ -67,9 +70,11 @@ export type BoardRef = {
 };
 
 export const Board = React.forwardRef(function Board({ 
-  startingValues: startingValues0,
+  range,
+  startingValues: startingValues0 = [],
   values: values0 = startingValues0,
   onProgress,
+  onMistake,
   onFailure,
   onSuccess,
   ...props
@@ -87,18 +92,18 @@ export const Board = React.forwardRef(function Board({
     invalid: invalidCells.some((c) => c.row === row && c.col === col),
   }))), [fixedCells, invalidCells, values0]);
   
-  const remainingNumbers = React.useMemo(() => [...Array(9).keys()].map((n) => n + 1).filter((n) => values.flat().filter((v) => `${v}` === `${n}`).length < 9), [values]);
+  const remainingNumbers = React.useMemo(() => [...Array(range).keys()].map((n) => n + 1).filter((n) => values.flat().filter((v) => `${v}` === `${n}`).length < range), [values, range]);
   
-  const cellSize = React.useMemo(() => Math.floor(Math.min(layout?.width ?? 0, layout?.height ?? 0) / 9), [layout]);
+  const cellSize = React.useMemo(() => Math.floor(Math.min(layout?.width ?? 0, layout?.height ?? 0) / range), [layout, range]);
   
   const validate = React.useCallback((values: SudokuGrid, row: number, col: number) => {
-    const value = values[row][col];
-    if (!value || valueIsValidInGrid(values, 9, row, col, value as SudokuValue)) {
+    const value = values[row]?.[col];
+    if (!value || valueIsValidInGrid(values, range, row, col, value as SudokuValue)) {
       setInvalidCells((prev) => prev.filter((cell) => cell.row !== row || cell.col !== col));
     } else {
       setInvalidCells((prev) => [...prev, { col, row }]);
     }
-  }, []);
+  }, [range]);
   
   const setAndValidateCell = React.useCallback((row: number, col: number, value: SudokuValue) => {
     let userFailed = false;
@@ -109,7 +114,7 @@ export const Board = React.forwardRef(function Board({
       
       const validate = (r: number, c: number) => {
         const value = newValues[r][c];
-        if (!value || valueIsValidInGrid(newValues, 9, r, c, value as SudokuValue)) {
+        if (!value || valueIsValidInGrid(newValues, range, r, c, value as SudokuValue)) {
           setInvalidCells((prev) => prev.filter((cell) => cell.row !== r || cell.col !== c));
         } else {
           if (r === row && c === col) {
@@ -119,14 +124,14 @@ export const Board = React.forwardRef(function Board({
         }
       };
       
-      for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
+      for (let i = 0; i < range; i++) {
+        for (let j = 0; j < range; j++) {
           validate(i, j);
         }
       }
 
       if (userFailed) {
-        onFailure();
+        onMistake();
       }
       
       onProgress?.(JSON.stringify({ 
@@ -136,28 +141,28 @@ export const Board = React.forwardRef(function Board({
           
       return newValues;
     });
-  }, [onProgress, startingValues0, onFailure]);
+  }, [onProgress, startingValues0, onMistake, range]);
 
   React.useEffect(() => {
     if (values.length === 0) {
       return;
     }
-    if (values.flat().filter(Boolean).length === 81 && invalidCells.length === 0) {
+    if (values.flat().filter(Boolean).length === (range * range) && invalidCells.length === 0) {
       onSuccess();
     }
-  }, [values, invalidCells, onSuccess]);
+  }, [values, invalidCells, onSuccess, range]);
   
   React.useEffect(() => {
     setValues(values0);
     if (values0.length === 0) {
       return;
     }
-    for (let i = 0; i < 9; i++) {
-      for (let j = 0; j < 9; j++) {
+    for (let i = 0; i < range; i++) {
+      for (let j = 0; j < range; j++) {
         validate(values0, i, j);
       }
     }
-  }, [values0, validate]);
+  }, [values0, validate, range]);
   
   React.useLayoutEffect(() => {
     function updateLayout() {
@@ -190,6 +195,7 @@ export const Board = React.forwardRef(function Board({
   return (
     <StyledBoard> 
       <Grid 
+        range={ range }
         rows={ values }
         cellProps={ cellProps }
         cellSize={ 30 }
@@ -197,6 +203,7 @@ export const Board = React.forwardRef(function Board({
         onCellSelect={ setSelectedCell }
         { ...props } />
       <NumberSelector
+        range={ range }
         cellSize={ cellSize * 0.7 }
         remainingNumbers={ remainingNumbers }
         onSelect={ (value) => {

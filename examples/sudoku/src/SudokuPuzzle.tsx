@@ -15,7 +15,10 @@ export type SudokuPuzzleProps = PuzzleProps & {
 const StyledPuzzle = styled.div`
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   gap: 1rem;
+  align-items: center;
+  justify-content: center;
 `;
 
 const StyledDifficulties = styled.div`
@@ -78,7 +81,6 @@ export const SudokuPuzzle = ({
     }
     if (data) {
       try {
-        console.log(data);
         const { startingValues, values } = typeof data === 'string' ? JSON.parse(data) : data;
         setPuzzle({ startingValues, values });
       } catch (e) {
@@ -98,13 +100,14 @@ export const SudokuPuzzle = ({
     <StyledPuzzle>
       {props.preview ? (
         <StyledDifficulties>
-          {['easy', 'medium', 'hard'].map((diff) => (
+          {['easy', 'medium', 'hard', 'extreme'].map((diff) => (
             <StyledButton
               key={ diff }
               style={ { 
                 backgroundColor: difficulty === diff ? 'black' : 'white', 
                 color: difficulty === diff ? 'white' : 'black', 
               } }
+              className={ difficulty === diff ? 'chip' : undefined }
               onClick={ () => {
                 setDifficulty(diff);
                 onConfig?.({ difficulty: diff });
@@ -122,6 +125,7 @@ export const SudokuPuzzle = ({
       )}
       <Board
         ref={ boardRef }
+        range={ difficulty === 'easy' ? 4 : 9 }
         { ...puzzle }
         { ...props } />
       <StyledRow>
