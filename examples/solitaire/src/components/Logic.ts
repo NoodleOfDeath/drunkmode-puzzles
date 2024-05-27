@@ -29,11 +29,11 @@ export const handleDragEnd = ({
 
   if (!destination) {
     return {
-      failure,
-      uFlipped,
-      uSuit,
-      uTableau, 
-      uWaste, 
+      failure: false,
+      flippedCards: uFlipped,
+      suitCards: uSuit,
+      tableauCards: uTableau, 
+      wasteCards: uWaste, 
     };
   }
 
@@ -110,10 +110,10 @@ export const handleDragEnd = ({
 
   return {
     failure,
-    uFlipped,
-    uSuit,
-    uTableau, 
-    uWaste, 
+    flippedCards: uFlipped,
+    suitCards: uSuit,
+    tableauCards: uTableau,
+    wasteCards: uWaste,
   };
 
 };
