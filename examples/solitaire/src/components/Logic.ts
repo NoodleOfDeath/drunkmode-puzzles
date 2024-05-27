@@ -27,13 +27,13 @@ export const handleDragEnd = ({
   const uFlipped: CardProps[] = [];
   let failure = true;
 
-  if (!destination) {
+  if (!destination || source === destination) {
     return {
-      failure,
-      uFlipped,
-      uSuit,
-      uTableau, 
-      uWaste, 
+      failure: false,
+      flippedCards: uFlipped,
+      suitCards: uSuit,
+      tableauCards: uTableau, 
+      wasteCards: uWaste, 
     };
   }
 
@@ -110,10 +110,10 @@ export const handleDragEnd = ({
 
   return {
     failure,
-    uFlipped,
-    uSuit,
-    uTableau, 
-    uWaste, 
+    flippedCards: uFlipped,
+    suitCards: uSuit,
+    tableauCards: uTableau, 
+    wasteCards: uWaste, 
   };
 
 };
@@ -165,6 +165,7 @@ export const moveCardsAfterWin = ({
   }) => {
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tableauCards.forEach((column: any[], columnIndex: number) => {
     const lastCard = column[column.length-1];
