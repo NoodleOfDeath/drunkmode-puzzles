@@ -1,0 +1,9 @@
+{
+  "name": "app.drunkmode.DrunkMode.solitaire",
+  "version": "1.0.0",
+  "icon": "cards-playing-club-multiple",
+  "displayName": "Solitaire",
+  "description": "Classic Solitaire puzzle with various difficulty levels",
+  "author": "Tris Bouden",
+  "instructions": "Arrange the cards on the tableau in descending order and alternating colors to clear the board and win the game"
+}

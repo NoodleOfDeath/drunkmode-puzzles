@@ -1,0 +1,40 @@
+{
+  "name": "app.drunkmode.DrunkMode.solitaire",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "@types/next": "^9.0.0",
+    "@types/node": "^20.11.30",
+    "@types/offscreencanvas": "^2019.7.3",
+    "@types/react": "^18.2.71",
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/react-dom": "^18.2.22",
+    "next": "^13.4.9",
+    "nodemon": "^2.0.21",
+    "tailwindcss": "^3.4.3",
+    "tsx": "^4.7.1"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.19",
+    "drunkmode-puzzles": "^0.1.17-b",
+    "postcss": "^8.4.38",
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dom": "^18.2.0",
+    "styled-components": "^6.1.8",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "dev": "next dev -p 6969",
+    "start": "next start",
+    "build": "yarn format && next build",
+    "export": "yarn build && next export && tsx postexport.ts",
+    "test": "next test",
+    "eject": "next eject",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "format": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
