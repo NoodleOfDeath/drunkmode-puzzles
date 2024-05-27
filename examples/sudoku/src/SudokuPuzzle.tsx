@@ -73,13 +73,7 @@ export const SudokuPuzzle = ({
   }, [difficulty]);
   
   React.useEffect(() => {
-    if (startFresh) {
-      setPuzzle(generateSudokuPuzzle({ difficulty }));
-    }
-    if (loaded) {
-      return;
-    }
-    if (data) {
+    if (data && !startFresh && !loaded) {
       try {
         const { startingValues, values } = typeof data === 'string' ? JSON.parse(data) : data;
         setPuzzle({ startingValues, values });
@@ -87,8 +81,10 @@ export const SudokuPuzzle = ({
         alert('there was an issue loading puzzle progress');
         setPuzzle(generateSudokuPuzzle({ difficulty }));
       } finally {
-        setLoaded(true);
+        setLoaded(true)
       }
+    } else {
+      setPuzzle(generateSudokuPuzzle({ difficulty }));
     }
   }, [startFresh, difficulty, data, loaded]);
   
