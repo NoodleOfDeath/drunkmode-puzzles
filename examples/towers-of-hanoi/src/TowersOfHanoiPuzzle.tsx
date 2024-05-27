@@ -106,7 +106,7 @@ export const Disk = ({
 export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
   onConfig,
   onProgress,
-  onFailure,
+  onMistake,
   onSuccess,
   startFresh,
   config,
@@ -125,7 +125,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
     ...Array.from({ length: numberOfTowers - 1 }, () => []),
   ]);
 
-  const numberOfDisks = React.useMemo(() => difficulty === 'easy' ? 3 : difficulty === 'medium' ? 5 : 8, [difficulty]);
+  const numberOfDisks = React.useMemo(() => difficulty === 'easy' ? 3 : difficulty === 'medium' ? 4 : 5, [difficulty]);
 
   const reset = React.useCallback(() => {
     setTowers([
@@ -151,7 +151,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
         state[to].push(fromDisk);
         state[from].pop();
       } else {
-        onFailure();
+        onMistake();
       }
       onProgress?.({ towers: state });
       return state;
@@ -243,10 +243,10 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
             </StyledDiskContainer>
             <StyledButtonContainer>
               <StyledButton onClick={ () => moveDisk(index, index - 1 > -1 ? index - 1 : numberOfTowers - 1) }>
-                &lt;
+                ←
               </StyledButton>
               <StyledButton onClick={ () => moveDisk(index, (index + 1) % numberOfTowers) }>
-                &gt;
+                →
               </StyledButton>
             </StyledButtonContainer>
           </StyledTower>

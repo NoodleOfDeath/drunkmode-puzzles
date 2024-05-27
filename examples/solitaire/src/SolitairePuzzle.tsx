@@ -115,11 +115,7 @@ export const Puzzle = ({
   }, []);
   
   React.useEffect(() => {
-    if (loaded) {
-      return;
-    }
-    setLoaded(true);
-    if (data && !startFresh) {
+    if (data && !startFresh && !loaded) {
       try {
         const history = (typeof data === 'string' ? JSON.parse(data) : data) as HistoryState[];
         if (history.length > 0) {
@@ -135,6 +131,8 @@ export const Puzzle = ({
       } catch (e) {
         alert('there was an issue loading puzzle progress');
         setCards();
+      } finally {
+        setLoaded(true);
       }
     } else {
       setCards();

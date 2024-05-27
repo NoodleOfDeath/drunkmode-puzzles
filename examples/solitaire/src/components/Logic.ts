@@ -112,8 +112,8 @@ export const handleDragEnd = ({
     failure,
     flippedCards: uFlipped,
     suitCards: uSuit,
-    tableauCards: uTableau, 
-    wasteCards: uWaste, 
+    tableauCards: uTableau,
+    wasteCards: uWaste,
   };
 
 };
