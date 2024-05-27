@@ -8,6 +8,7 @@ import Foundation from './components/Foundation';
 import {
   checkWinningCondition,
   handleDragEnd,
+  handleMultipleDrag,
   moveCardsAfterWin,
 } from './components/Logic';
 import StockPile from './components/Stock';
@@ -207,6 +208,10 @@ export const Puzzle = ({
     
   }, [onMistake, onProgress, onSuccess, stockCards, suitCards, tableauCards, wasteCards]);
   
+  const handleMultiple = (source: any) => {
+    handleMultipleDrag(source, tableauCards);
+  };
+
   return (
     <div
       className="flex flex-col px-2 w-full max-w-screen-lg mx-auto min-h-screen justify-center overscroll-none select-none"
@@ -216,7 +221,9 @@ export const Puzzle = ({
         </React.Fragment>
       )}
       {/* Foundation component */}
-      <DragDropContext onDragEnd={ handleDragEndWrapper }>
+      <DragDropContext
+        onDragEnd={ handleDragEndWrapper }
+        onDragUpdate={ handleMultiple }>
         <div className='flex justify-between'>
           <StockPile 
             cards={ stockCards }

@@ -142,7 +142,7 @@ const isValidFoundationMove = (cardsToMove: CardProps[], foundationPile: CardPro
   );
 };
 
-// wheck win 
+// check win 
 export const checkWinningCondition = (tableauCards: CardProps[][], wasteCards: CardProps[], stockCards: CardProps[]) => {
   // Check if all cards in the tableau are face up
   const allCardsFaceUp = tableauCards.every((column) => column.every((card) => card.isFaceUp));
@@ -195,4 +195,29 @@ export const moveCardsAfterWin = ({
     return;
   }
 
+};
+
+export const handleMultipleDrag = (
+  source: any,
+  tableauCards: CardProps[][]
+) => {
+  const sParts = source.source.droppableId.split('-');
+  if (sParts[0] === 'col') {
+    const draggedCards = tableauCards[parseInt(sParts[1])].slice(source.source.index);
+    const draggedCard = document.querySelector(`[data-rbd-draggable-id="${draggedCards[0].id}"]`) as HTMLElement;
+    const translate = draggedCard.style.transform.match(/translate\(((-)?\d*)px, ((-)?\d*)px\)/);
+    for (let i = 0; i < draggedCards.length; i++) {
+      const draggedCard = document.querySelector(`[data-rbd-draggable-id="${draggedCards[i].id}"]`) as HTMLElement;
+      if (draggedCard && i > 0 && translate) {
+        
+        const x = parseInt(translate[1]);
+        const y = parseInt(translate[3]);
+
+        draggedCard.style.transform = `translate(${x}px, ${y+ window.innerWidth*0.05}px)`;
+        draggedCard.style.zIndex = `${i+5000}`;
+      }
+    
+    }
+  }
+  
 };

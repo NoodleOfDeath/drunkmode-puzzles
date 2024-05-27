@@ -30,16 +30,16 @@ const Card: React.FC<CardProps> = ({
               {rank}
             </div>
             <div className="w-[4vw] md:w-[2rem]">
-              <Image className="py-[0.9vw] max-h-full w-auto" src={ SUITS[suit] } alt={ suit } />
+              <Image width={ 50 } height={ 50 } className="py-[0.9vw] max-h-full w-auto" src={ SUITS[suit] } alt={ suit } />
             </div>
           </div>
           <div className="w-full h-2/3 flex items-center md:w-[5rem] justify-center">
-            <Image className="h-full w-auto p-2" src={ SUITS[suit] } alt={ suit } />
+            <Image width={ 50 } height={ 50 } className="h-full w-auto p-2" src={ SUITS[suit] } alt={ suit } />
           </div>
         </React.Fragment>
       ) : (
         <div className="p-[1vw] md:p-2 h-full w-full flex justify-center items-center bg-[#4a7ecf] border-white border-[0.5vw] md:rounded-md rounded">
-          <Image src={ './AppIcon.png' } alt='Drunk mode App Icon' />
+          <Image width={ 50 } height={ 50 } src={ './AppIcon.png' } alt='Drunk mode App Icon' />
         </div>
       )}
     </div>
