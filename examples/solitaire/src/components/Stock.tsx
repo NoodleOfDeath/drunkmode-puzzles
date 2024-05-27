@@ -21,11 +21,21 @@ const Stock: React.FC<StockProps> = ({
 
   return (
     <React.Fragment>
-      <div className='flex py-2 gap-3 w-fit'>
-        <div onClick={ onDrawCard } className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
+      <div className='relative flex py-2 gap-3 w-fit'>
+        <div 
+          onClick={ onDrawCard }
+          className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] mb-5 border-red-900 border-2 border-dashed cursor-pointer rounded">
           {cards.map((card, cardIndex) => (
-            <div key={ cardIndex } style={ { position: 'absolute', top: `${cardIndex * 0.02}rem` } }>
-              <Card key={ cardIndex } { ...card } isFaceUp={ false } />
+            <div
+              key={ cardIndex } 
+              style={ {
+                position: 'absolute', 
+                top: `${cardIndex * 0.02}rem`, 
+              } }>
+              <Card 
+                key={ cardIndex } 
+                { ...card } 
+                isFaceUp={ false } />
             </div>
           ))}
         </div>
@@ -51,7 +61,9 @@ const Stock: React.FC<StockProps> = ({
                         { ...provided.draggableProps }
                         { ...provided.dragHandleProps }
                         style={ {
-                          position: 'absolute', top: `${cardIndex * 0.02}rem`, ...provided.draggableProps.style, 
+                          position: 'absolute',
+                          top: `${cardIndex * 0.02}rem`, 
+                          ...provided.draggableProps.style, 
                         } }>
                         <Card { ...card } isFaceUp={ true } />
                       </div>

@@ -27,7 +27,7 @@ export const handleDragEnd = ({
   const uFlipped: CardProps[] = [];
   let failure = true;
 
-  if (!destination) {
+  if (!destination || source === destination) {
     return {
       failure: false,
       flippedCards: uFlipped,
@@ -165,6 +165,7 @@ export const moveCardsAfterWin = ({
   }) => {
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tableauCards.forEach((column: any[], columnIndex: number) => {
     const lastCard = column[column.length-1];
