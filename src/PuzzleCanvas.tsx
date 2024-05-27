@@ -74,17 +74,16 @@ export const PuzzleCanvas = ({ puzzle: ChildComponent }: PuzzleCanvasProps) => {
       colorScheme={ env?.colorScheme || colorScheme }>
       <ChildComponent
         preview={ env?.preview }
-        config = { env?.config }
-        data = { env?.data }
-        startFresh = { !!env?.preview || !env?.data }
-        onConfig = { (data) => PuzzleMessage.onConfig({
+        config={ env?.config }
+        data={ env?.data }
+        startFresh={ !!env?.preview || !env?.data }
+        onConfig={ (data) => PuzzleMessage.onConfig({
           ...env?.config,
           ...data,
         }) }
-        onProgress = { (data) => PuzzleMessage.onProgress(data) }
-        onMistake = { (data) => PuzzleMessage.onMistake(data) }
-        onFailure = { (data) => PuzzleMessage.onFailure(data) }
-        onSuccess = { (data) => PuzzleMessage.onSuccess(data) } />
+        onProgress={ (data) => PuzzleMessage.onProgress(data) }
+        onFailure={ (data) => PuzzleMessage.onFailure(data) }
+        onSuccess={ (data) => PuzzleMessage.onSuccess(data) } />
     </StyledMain>
   );
 };

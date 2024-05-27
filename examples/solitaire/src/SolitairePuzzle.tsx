@@ -14,6 +14,13 @@ import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 
 export const SUITS = {
+  club: '♣',
+  diamond: '♦',
+  heart: '♥',
+  spade: '♠',
+} as const;
+
+export const SUIT_IMAGES = {
   club: './club.png',
   diamond: './diamond.png',
   heart: './heart.png',
@@ -57,6 +64,14 @@ export type HistoryState = {
   wasteCards: CardProps[];
 };
 
+export const ZERO_STATE: HistoryState = {
+  flippedCards: [],
+  stockCards: [],
+  suitCards: [[], [], [], []],
+  tableauCards: [],
+  wasteCards: [],
+};
+
 export const Puzzle = ({
   startFresh,
   //config,
@@ -70,21 +85,18 @@ export const Puzzle = ({
 }: PuzzleProps) => {
   
   const [loaded, setLoaded] = React.useState(false);
-  const [tableauCards, setTableauCards] = React.useState<CardProps[][]>([]);
-  const [wasteCards, setWasteCards] = React.useState<CardProps[]>([]); 
-  const [stockCards, setStockCards] = React.useState<CardProps[]>([]);
-  const [suitCards, setSuitCards] = React.useState<CardProps[][]>([[], [], [], []]);
+  const [state, setState] = React.useState(ZERO_STATE);
   const [_, setGameHistory] = React.useState<HistoryState[]>([]);
   
   const setCards = React.useCallback(() => {
     const shuffledCards = [...DECK].sort(() => Math.random() - 0.5);
-    setTableauCards(() => {
+    setState((prev) => {
       const cards: CardProps[][] = [];
       let currentIndex = 0;
       for (let i = 1; i <= 7; i++) {
         const column = [];
         for (let j = 0; j < i; j++) {
-          if (j+1 == i) {
+          if (j + 1 == i) {
             shuffledCards.slice(0, 28)[currentIndex + j].isFaceUp = true;
           } else {
             shuffledCards.slice(0, 28)[currentIndex + j].isFaceUp = false;
@@ -94,23 +106,33 @@ export const Puzzle = ({
         cards.push(column);
         currentIndex += i;
       }
-      return cards;
-    }); 
-    setStockCards(shuffledCards.slice(28));
+      return {
+        ...prev,
+        stockCards: shuffledCards.slice(28),
+        tableauCards: cards,
+      };
+    });
   }, []);
   
   React.useEffect(() => {
-    if (loaded) {
-      return;
-    }
-    setLoaded(true);
-    if (data && !startFresh) {
+    if (data && !startFresh && !loaded) {
       try {
-        const history = typeof data === 'string' ? JSON.parse(data) : data;
-        setGameHistory(history);
+        const history = (typeof data === 'string' ? JSON.parse(data) : data) as HistoryState[];
+        if (history.length > 0) {
+          const latest = history[history.length - 1];
+          setState({
+            ...ZERO_STATE,
+            ...latest,
+          });
+          setGameHistory(history);
+        } else {
+          throw new Error('Error loading history');
+        }
       } catch (e) {
         alert('there was an issue loading puzzle progress');
         setCards();
+      } finally {
+        setLoaded(true);
       }
     } else {
       setCards();
@@ -122,20 +144,20 @@ export const Puzzle = ({
       return;
     }
     setGameHistory((prev) => {
-      if (prev.length > 1) {
-        const curr = prev[prev.length - 1];
-        const old = prev[prev.length - 2];
-        for (const column of old.tableauCards) {
+      if (prev.length > 0) {
+        // contains flipped card state ( dt )
+        const dt = prev[prev.length - 1];
+        // contains last history state (dt minus 1)
+        const dt_1 = prev.length > 1 ? prev[prev.length - 2] : dt;
+        for (const column of dt_1.tableauCards) {
           for (const card of column) {
-            if (curr.flippedCards.some((c) => c.id === card.id)) {
+            if (dt.flippedCards.some((c) => c.id === card.id)) {
+              // force previously face-down cards back to face-down
               card.isFaceUp = false;
             }
           }
         }
-        setTableauCards(old.tableauCards);
-        setWasteCards(old.wasteCards);
-        setStockCards(old.stockCards);
-        setSuitCards(old.suitCards);
+        setState(dt_1);
         return prev.slice(0, -1);
       }
       return prev;
@@ -148,10 +170,7 @@ export const Puzzle = ({
       return;
     }
     setGameHistory([]);
-    setTableauCards([]);
-    setWasteCards([]);
-    setStockCards([]);
-    setSuitCards([[], [], [], []]);
+    setState(ZERO_STATE);
     setCards();
   };
   
@@ -160,16 +179,11 @@ export const Puzzle = ({
     
     const {
       failure,
-      uFlipped, 
-      uTableau, 
-      uSuit,
-      uWaste, 
+      ...dtState
     } = handleDragEnd({
       destination,
       source,
-      suitCards,
-      tableauCards,
-      wasteCards,
+      ...state,
     });
 
     if (failure) {
@@ -177,35 +191,29 @@ export const Puzzle = ({
       return;
     }
 
-    const newStates: HistoryState = {
-      flippedCards: uFlipped,
-      stockCards, 
-      suitCards: uSuit, 
-      tableauCards: uTableau, 
-      wasteCards: uWaste,
+    const newState: HistoryState = {
+      stockCards: state.stockCards, 
+      ...dtState,
     };
     
     setGameHistory((prev) => {
-      const isWinner = checkWinningCondition(uTableau, uWaste, stockCards);
+      const isWinner = checkWinningCondition(dtState.tableauCards, dtState.wasteCards, state.stockCards);
       if (isWinner && prev.length > 2) {
         moveCardsAfterWin({
-          setSuitCards, 
-          setTableauCards, 
-          suitCards: uSuit,
-          tableauCards: uTableau,
+          setSuitCards: (suitCards) => setState({ ...newState, suitCards: suitCards as CardProps[][] }),
+          setTableauCards: (tableauCards) => setState({ ...newState, tableauCards: tableauCards as CardProps[][] }),
+          ...dtState,
         });
         onSuccess();
       }
-      const state = [...(prev ?? []), newStates];
-      onProgress?.(JSON.stringify(state));
-      return state;
+      const finalState = [...(prev ?? []), newState];
+      onProgress?.(JSON.stringify(finalState));
+      return finalState;
     });
 
-    setTableauCards(uTableau);
-    setSuitCards(uSuit);
-    setWasteCards(uWaste);
+    setState(newState);
     
-  }, [onMistake, onProgress, onSuccess, stockCards, suitCards, tableauCards, wasteCards]);
+  }, [onMistake, onProgress, onSuccess, state]);
   
   return (
     <div
@@ -219,27 +227,33 @@ export const Puzzle = ({
       <DragDropContext onDragEnd={ handleDragEndWrapper }>
         <div className='flex justify-between'>
           <StockPile 
-            cards={ stockCards }
-            wasteCards={ wasteCards }
+            cards={ state.stockCards }
+            wasteCards={ state.wasteCards }
             onDrawCard={ () => {
-              setStockCards((prev) => {
-                if (prev.length > 0) {
-                  const lastCard = prev[prev.length - 1]; 
+              setState((prev) => {
+                if (prev.stockCards.length > 0) {
+                  const lastCard = prev.stockCards[prev.stockCards.length - 1]; 
                   lastCard.isFaceUp = true;
-                  setWasteCards((prev) => [...prev, lastCard]);
-                  return prev.slice(0, -1);
+                  return {
+                    ...prev,
+                    stockCards: prev.stockCards.slice(0, -1),
+                    wasteCards: [...prev.wasteCards, lastCard],
+                  };
                 } else {
-                  const resetWasteCards = wasteCards.map(card => ({ ...card, isFaceUp: false }));
-                  setWasteCards([]); 
-                  return resetWasteCards.reverse();
+                  const resetWasteCards = prev.wasteCards.map(card => ({ ...card, isFaceUp: false }));
+                  return {
+                    ...prev,
+                    stockCards: resetWasteCards.reverse(),
+                    wasteCards: [],
+                  };
                 }
               });
             } } />
           <Foundation 
-            suits={ Object.values(SUITS) }
-            suitCards={ suitCards } /> 
+            suits={ Object.values(SUIT_IMAGES) }
+            suitCards={ state.suitCards } /> 
         </div>
-        <Tableau tableauCards={ tableauCards } />
+        <Tableau tableauCards={ state.tableauCards } />
       </DragDropContext>
       <div className="flex justify-center gap-6 mb-24">
         <button 
