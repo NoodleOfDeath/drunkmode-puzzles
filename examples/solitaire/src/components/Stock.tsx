@@ -28,8 +28,10 @@ const Stock: React.FC<StockProps> = ({
           {cards.map((card, cardIndex) => (
             <div
               key={ cardIndex } 
-              style={ { position: 'absolute', 
-              top: `${cardIndex * 0.02}rem` } }>
+              style={ {
+                position: 'absolute', 
+                top: `${cardIndex * 0.02}rem`, 
+              } }>
               <Card 
                 key={ cardIndex } 
                 { ...card } 

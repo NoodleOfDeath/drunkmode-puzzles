@@ -14,6 +14,13 @@ import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 
 export const SUITS = {
+  club: '♣',
+  diamond: '♦',
+  heart: '♥',
+  spade: '♠',
+} as const;
+
+export const SUIT_IMAGES = {
   club: './club.png',
   diamond: './diamond.png',
   heart: './heart.png',
@@ -245,7 +252,7 @@ export const Puzzle = ({
               });
             } } />
           <Foundation 
-            suits={ Object.values(SUITS) }
+            suits={ Object.values(SUIT_IMAGES) }
             suitCards={ state.suitCards } /> 
         </div>
         <Tableau tableauCards={ state.tableauCards } />
