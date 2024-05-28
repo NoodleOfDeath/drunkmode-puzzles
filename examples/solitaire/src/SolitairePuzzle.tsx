@@ -117,13 +117,9 @@ export const Puzzle = ({
   React.useEffect(() => {
     if (data && !startFresh && !loaded) {
       try {
-        const history = (typeof data === 'string' ? JSON.parse(data) : data) as HistoryState[];
+        const { state, history } = (typeof data === 'string' ? JSON.parse(data) : data) as { state: HistoryState; history: HistoryState[]; };
         if (history.length > 0) {
-          const latest = history[history.length - 1];
-          setState({
-            ...ZERO_STATE,
-            ...latest,
-          });
+          setState(state);
           setGameHistory(history);
         } else {
           throw new Error('Error loading history');
@@ -207,7 +203,10 @@ export const Puzzle = ({
         onSuccess();
       }
       const finalState = [...(prev ?? []), newState];
-      onProgress?.(JSON.stringify(finalState));
+      onProgress?.(JSON.stringify({
+        history: finalState,
+        state: newState,
+      }));
       return finalState;
     });
 

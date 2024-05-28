@@ -81,7 +81,7 @@ export const SudokuPuzzle = ({
         alert('there was an issue loading puzzle progress');
         setPuzzle(generateSudokuPuzzle({ difficulty }));
       } finally {
-        setLoaded(true)
+        setLoaded(true);
       }
     } else {
       setPuzzle(generateSudokuPuzzle({ difficulty }));
