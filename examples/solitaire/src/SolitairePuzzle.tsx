@@ -76,6 +76,7 @@ export const Puzzle = ({
   const [stockCards, setStockCards] = React.useState<CardProps[]>([]);
   const [suitCards, setSuitCards] = React.useState<CardProps[][]>([[], [], [], []]);
   const [_, setGameHistory] = React.useState<HistoryState[]>([]);
+  const [flippedCards, setFlippedCards] = React.useState<CardProps[]>([]); 
   
   const setCards = React.useCallback(() => {
     const shuffledCards = [...DECK].sort(() => Math.random() - 0.5);
@@ -123,7 +124,7 @@ export const Puzzle = ({
       return;
     }
     setGameHistory((prev) => {
-      if (prev.length > 1) {
+      if (prev.length > 2) {
         const curr = prev[prev.length - 1];
         const old = prev[prev.length - 2];
         for (const column of old.tableauCards) {
@@ -133,11 +134,12 @@ export const Puzzle = ({
             }
           }
         }
+        setFlippedCards(old.flippedCards);
         setTableauCards(old.tableauCards);
         setWasteCards(old.wasteCards);
         setStockCards(old.stockCards);
         setSuitCards(old.suitCards);
-        return prev.slice(0, -1);
+        return prev.slice(0, -2);
       }
       return prev;
     });
@@ -177,31 +179,7 @@ export const Puzzle = ({
       onMistake?.();
       return;
     }
-
-    const newStates: HistoryState = {
-      flippedCards: uFlipped,
-      stockCards, 
-      suitCards: uSuit, 
-      tableauCards: uTableau, 
-      wasteCards: uWaste,
-    };
-    
-    setGameHistory((prev) => {
-      const isWinner = checkWinningCondition(uTableau, uWaste, stockCards);
-      if (isWinner && prev.length > 2) {
-        moveCardsAfterWin({
-          setSuitCards, 
-          setTableauCards, 
-          suitCards: uSuit,
-          tableauCards: uTableau,
-        });
-        onSuccess();
-      }
-      const state = [...(prev ?? []), newStates];
-      onProgress?.(JSON.stringify(state));
-      return state;
-    });
-
+    setFlippedCards(uFlipped);
     setTableauCards(uTableau);
     setSuitCards(uSuit);
     setWasteCards(uWaste);
@@ -211,6 +189,32 @@ export const Puzzle = ({
   const handleMultiple = (source: any) => {
     handleMultipleDrag(source, tableauCards);
   };
+
+  React.useEffect(()=> {
+    
+    const newStates: HistoryState = {
+      flippedCards,
+      stockCards, 
+      suitCards, 
+      tableauCards, 
+      wasteCards,
+    };
+    setGameHistory((prev) => {
+      const isWinner = checkWinningCondition(tableauCards, wasteCards, stockCards);
+      if (isWinner && prev.length > 2) {
+        moveCardsAfterWin({
+          setSuitCards, 
+          setTableauCards, 
+          suitCards,
+          tableauCards,
+        });
+        onSuccess();
+      }
+      const state = [...(prev ?? []), newStates];
+      onProgress?.(JSON.stringify(state));
+      return state;
+    });
+  }, [ suitCards, tableauCards, stockCards, wasteCards]);
 
   return (
     <div
