@@ -201,23 +201,40 @@ export const handleMultipleDrag = (
   source: any,
   tableauCards: CardProps[][]
 ) => {
+  
   const sParts = source.source.droppableId.split('-');
   if (sParts[0] === 'col') {
+    
     const draggedCards = tableauCards[parseInt(sParts[1])].slice(source.source.index);
     const draggedCard = document.querySelector(`[data-rbd-draggable-id="${draggedCards[0].id}"]`) as HTMLElement;
-    const translate = draggedCard.style.transform.match(/translate\(((-)?\d*)px, ((-)?\d*)px\)/);
+    const translate = draggedCard.style.transform.match(/translate\(((-)?\d*.\d*)px, ((-)?\d*.\d*)px/);
+
     for (let i = 0; i < draggedCards.length; i++) {
       const draggedCard = document.querySelector(`[data-rbd-draggable-id="${draggedCards[i].id}"]`) as HTMLElement;
       if (draggedCard && i > 0 && translate) {
-        
+
         const x = parseInt(translate[1]);
         const y = parseInt(translate[3]);
 
         draggedCard.style.transform = `translate(${x}px, ${y+ window.innerWidth*0.05}px)`;
         draggedCard.style.zIndex = `${i+5000}`;
       }
-    
     }
   }
   
+};
+
+export const removeTranslate = (
+  tableauCards: CardProps[][]
+) => {
+  for (let i = 0; i < tableauCards.length; i++) {
+  
+    for (let j = 0; j < tableauCards[i].length; j++) {
+      const draggedCard = document.querySelector(`[data-rbd-draggable-id="${tableauCards[i][j].id}"]`) as HTMLElement;
+      if (draggedCard) {
+        draggedCard.style.transform = '';
+        draggedCard.style.zIndex = '';
+      }
+    }
+  }
 };
