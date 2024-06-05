@@ -195,6 +195,7 @@ export const Puzzle = ({
     });
 
     if (failure) {
+      removeTranslate(state.tableauCards);
       onMistake?.();
       return;
     }
