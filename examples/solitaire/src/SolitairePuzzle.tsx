@@ -16,6 +16,13 @@ import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
 
 export const SUITS = {
+  club: '♣',
+  diamond: '♦',
+  heart: '♥',
+  spade: '♠',
+} as const;
+
+export const SUIT_IMAGES = {
   club: './club.png',
   diamond: './diamond.png',
   heart: './heart.png',
@@ -59,6 +66,14 @@ export type HistoryState = {
   wasteCards: CardProps[];
 };
 
+export const ZERO_STATE: HistoryState = {
+  flippedCards: [],
+  stockCards: [],
+  suitCards: [[], [], [], []],
+  tableauCards: [],
+  wasteCards: [],
+};
+
 export const Puzzle = ({
   startFresh,
   //config,
@@ -70,17 +85,15 @@ export const Puzzle = ({
   onSuccess,
   ...props
 }: PuzzleProps) => {
-  
+
   const [loaded, setLoaded] = React.useState(false);
-  const [tableauCards, setTableauCards] = React.useState<CardProps[][]>([]);
-  const [wasteCards, setWasteCards] = React.useState<CardProps[]>([]); 
-  const [stockCards, setStockCards] = React.useState<CardProps[]>([]);
-  const [suitCards, setSuitCards] = React.useState<CardProps[][]>([[], [], [], []]);
+  const [state, setState] = React.useState(ZERO_STATE);
   const [_, setGameHistory] = React.useState<HistoryState[]>([]);
   const [isDragging, setIsDragging] = React.useState(false);
+
   const setCards = React.useCallback(() => {
     const shuffledCards = [...DECK].sort(() => Math.random() - 0.5);
-    setTableauCards(() => {
+    setState((prev) => {
       const cards: CardProps[][] = [];
       let currentIndex = 0;
       for (let i = 1; i <= 7; i++) {
@@ -97,22 +110,25 @@ export const Puzzle = ({
         currentIndex += i;
       }
 
-      const newStates: HistoryState = {
+      const newState: HistoryState = {
         flippedCards: [],
         stockCards: shuffledCards.slice(28), 
-        suitCards, 
+        suitCards: state.suitCards,
         tableauCards: cards, 
-        wasteCards,
+        wasteCards: state.wasteCards,
       };
       setGameHistory((prev) => {
-        const state = [...(prev ?? []), newStates];
+        const state = [...(prev ?? []), newState];
         onProgress?.(JSON.stringify(state));
         return state;
       });
 
-      return cards;
+      return {
+        ...prev,
+        stockCards: shuffledCards.slice(28),
+        tableauCards: cards,
+      };
     }); 
-    setStockCards(shuffledCards.slice(28));
   }, []);
   
   React.useEffect(() => {
@@ -148,10 +164,7 @@ export const Puzzle = ({
             }
           }
         }
-        setTableauCards(old.tableauCards);
-        setWasteCards(old.wasteCards);
-        setStockCards(old.stockCards);
-        setSuitCards(old.suitCards);
+        setState(old);
         return prev.slice(0, -1);
       }
       return prev;
@@ -164,10 +177,7 @@ export const Puzzle = ({
       return;
     }
     setGameHistory([]);
-    setTableauCards([]);
-    setWasteCards([]);
-    setStockCards([]);
-    setSuitCards([[], [], [], []]);
+    setState(ZERO_STATE);
     setCards();
   };
   
@@ -176,104 +186,104 @@ export const Puzzle = ({
     
     const {
       failure,
-      uFlipped, 
-      uTableau, 
-      uSuit,
-      uWaste, 
+      ...dtState 
     } = handleDragEnd({
       destination,
       source,
-      suitCards,
-      tableauCards,
-      wasteCards,
+      ...state,
     });
 
-    // if (failure) {
-    //   onMistake?.();
-    //   return;
-    // }
+    if (failure) {
+      onMistake?.();
+      return;
+    }
     
-    const newStates: HistoryState = {
-      flippedCards: uFlipped,
-      stockCards, 
-      suitCards: uSuit, 
-      tableauCards: uTableau, 
-      wasteCards: uWaste,
+    const newState: HistoryState = {
+      stockCards: state.stockCards, 
+      ...dtState,
     };
     
     setGameHistory((prev) => {
-      const isWinner = checkWinningCondition(uTableau, uWaste, stockCards);
+      const isWinner = checkWinningCondition(dtState.tableauCards, dtState.wasteCards, state.stockCards);
       if (isWinner && prev.length > 2) {
         moveCardsAfterWin({
-          setSuitCards, 
-          setTableauCards, 
-          suitCards: uSuit,
-          tableauCards: uTableau,
+          setSuitCards: (suitCards) => setState({ ...newState, suitCards: suitCards as CardProps[][] }),
+          setTableauCards: (tableauCards) => setState({ ...newState, tableauCards: tableauCards as CardProps[][] }),
+          ...dtState,
         });
         onSuccess();
       }
-      const state = [...(prev ?? []), newStates];
-      onProgress?.(JSON.stringify(state));
-      return state;
+      const finalState = [...(prev ?? []), newState];
+      onProgress?.(JSON.stringify({
+        history: finalState,
+        state: newState,
+      }));
+      return finalState;
     });
 
-    setTableauCards(uTableau);
-    setSuitCards(uSuit);
-    setWasteCards(uWaste);
+    setState(newState);
     setIsDragging(false);
-    removeTranslate(tableauCards);
-  }, [onMistake, onProgress, onSuccess, stockCards, suitCards, tableauCards, wasteCards]);
+    removeTranslate(state.tableauCards);
+  }, [onMistake, onProgress, onSuccess, state]);
   
   const handleMultiple = (source: any) => {
     setIsDragging(source);
   };
   
   const handleOnDrawCard = () => {
-    setStockCards((prev) => {
-      if (prev.length > 0) {
-        const lastCard = prev[prev.length - 1]; 
+    setState((prev) => {
+      if (prev.stockCards.length > 0) {
+        const lastCard = prev.stockCards[prev.stockCards.length - 1]; 
         lastCard.isFaceUp = true;
-        setWasteCards((prev) => [...prev, lastCard]);
-        const newStates: HistoryState = {
+
+        const newState: HistoryState = {
           flippedCards: [],
-          stockCards: prev.slice(0, -1), 
-          suitCards, 
-          tableauCards, 
-          wasteCards: [...wasteCards, lastCard],
+          stockCards: prev.stockCards.slice(0, -1), 
+          suitCards: state.suitCards, 
+          tableauCards: state.tableauCards, 
+          wasteCards: [...prev.wasteCards, lastCard],
         };
     
         setGameHistory((prev) => {
           
-          const state = [...(prev ?? []), newStates];
+          const state = [...(prev ?? []), newState];
           onProgress?.(JSON.stringify(state));
           return state;
         });
-        return prev.slice(0, -1);
+        return {
+          ...prev,
+          stockCards: prev.stockCards.slice(0, -1),
+          wasteCards: [...prev.wasteCards, lastCard],
+        };
         
       } else {
-        const resetWasteCards = wasteCards.map(card => ({ ...card, isFaceUp: false })).reverse();
-        setWasteCards([]); 
-        const newStates: HistoryState = {
+        const resetWasteCards = prev.wasteCards.map((card: any) => ({ ...card, isFaceUp: false })).reverse();
+        
+        const newState: HistoryState = {
           flippedCards: [],
           stockCards: resetWasteCards, 
-          suitCards, 
-          tableauCards, 
+          suitCards: state.suitCards, 
+          tableauCards: state.tableauCards, 
           wasteCards: [],
         };
     
         setGameHistory((prev) => {
           
-          const state = [...(prev ?? []), newStates];
+          const state = [...(prev ?? []), newState];
           onProgress?.(JSON.stringify(state));
           return state;
         });
-        return resetWasteCards;
+        return {
+          ...prev,
+          stockCards: resetWasteCards,
+          wasteCards: [],
+        };
       }
     });
   };
   const isDrag = React.useCallback(() => {
-    handleMultipleDrag(isDragging, tableauCards);
-  }, [isDragging, tableauCards]);
+    handleMultipleDrag(isDragging, state.tableauCards);
+  }, [isDragging, state.tableauCards]);
 
   React.useEffect(() => {
     if (isDragging) {
@@ -303,14 +313,14 @@ export const Puzzle = ({
         onDragStart={ handleMultiple }>
         <div className='flex justify-between'>
           <StockPile 
-            cards={ stockCards }
-            wasteCards={ wasteCards }
+            cards={ state.stockCards }
+            wasteCards={ state.wasteCards }
             onDrawCard={ handleOnDrawCard } />
           <Foundation 
-            suits={ Object.values(SUITS) }
-            suitCards={ suitCards } /> 
+            suits={ Object.values(SUIT_IMAGES) }
+            suitCards={ state.suitCards } /> 
         </div>
-        <Tableau tableauCards={ tableauCards } />
+        <Tableau tableauCards={ state.tableauCards } />
       </DragDropContext>
       <div className="flex justify-center gap-6 mb-24">
         <button 
