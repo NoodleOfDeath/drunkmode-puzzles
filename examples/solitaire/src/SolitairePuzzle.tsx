@@ -129,6 +129,7 @@ export const Puzzle = ({
         tableauCards: cards,
       };
     }); 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   React.useEffect(() => {
@@ -203,15 +204,17 @@ export const Puzzle = ({
       ...dtState,
     };
     
-    setGameHistory((prev) => {
+    setGameHistory( (prev) => {
       const isWinner = checkWinningCondition(dtState.tableauCards, dtState.wasteCards, state.stockCards);
       if (isWinner && prev.length > 2) {
         moveCardsAfterWin({
-          setSuitCards: (suitCards) => setState({ ...newState, suitCards: suitCards as CardProps[][] }),
-          setTableauCards: (tableauCards) => setState({ ...newState, tableauCards: tableauCards as CardProps[][] }),
+          setState,
           ...dtState,
         });
-        onSuccess();
+        setTimeout(() => {
+          onSuccess();
+        }, 1000);
+        
       }
       const finalState = [...(prev ?? []), newState];
       onProgress?.(JSON.stringify({
@@ -226,6 +229,7 @@ export const Puzzle = ({
     removeTranslate(state.tableauCards);
   }, [onMistake, onProgress, onSuccess, state]);
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMultiple = (source: any) => {
     setIsDragging(source);
   };
@@ -257,7 +261,7 @@ export const Puzzle = ({
         };
         
       } else {
-        const resetWasteCards = prev.wasteCards.map((card: any) => ({ ...card, isFaceUp: false })).reverse();
+        const resetWasteCards = prev.wasteCards.map((card: CardProps) => ({ ...card, isFaceUp: false })).reverse();
         
         const newState: HistoryState = {
           flippedCards: [],

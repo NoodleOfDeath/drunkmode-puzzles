@@ -152,53 +152,65 @@ export const checkWinningCondition = (tableauCards: CardProps[][], wasteCards: C
   return allCardsFaceUp && wasteEmpty && stockEmpty;
 };
 
-export const moveCardsAfterWin = ({
+export const moveCardsAfterWin = async ({
+  setState,
   tableauCards,
-  setTableauCards,
   suitCards,
-  setSuitCards,
 }: 
-  {tableauCards: CardProps[][];
-  setTableauCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  {setState: any;
+    tableauCards: CardProps[][];
   suitCards: Array<CardProps[]>;
-  setSuitCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
   }) => {
+  
+  const delay = () => new Promise(resolve => setTimeout(resolve, (30)));
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tableauCards.forEach((column: any[], columnIndex: number) => {
-    const lastCard = column[column.length-1];
+  for (let columnIndex = 0; columnIndex < tableauCards.length; columnIndex++) {
+    const column = tableauCards[columnIndex];
+    const lastCard = column[column.length - 1];
     if (lastCard) {
-      suitCards.forEach((suit, suitIndex) => {
+      for (let suitIndex = 0; suitIndex < suitCards.length; suitIndex++) {
+        const suit = suitCards[suitIndex];
         const validMove = isValidFoundationMove([lastCard], suit, suitIndex);
         if (validMove) {
           const newFoundation = [...suitCards];
           const newTableau = [...tableauCards];
-          newFoundation[suitIndex].push(lastCard);
+          newFoundation[suitIndex] = [...newFoundation[suitIndex], lastCard];
           newTableau[columnIndex] = newTableau[columnIndex].slice(0, -1);
-          setTableauCards(newTableau);
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setState((prev: any)=>{
+            return {
+              ...prev, 
+              suitCards: newFoundation,
+              tableauCards: newTableau,
+            };
+          });
+
+          await delay();
+
           tableauCards = newTableau;
-          setSuitCards(newFoundation);
+          suitCards = newFoundation;
+
+          break; 
         }
-      });
+      }
     }
-  });
+  }
 
   if (anyCardsLeftInTableau) {
     moveCardsAfterWin({
-      setSuitCards,
-      setTableauCards,
+      setState,
       suitCards,
       tableauCards,
     });
-  } else {
-    return;
   }
-
 };
 
 export const handleMultipleDrag = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source: any,
   tableauCards: CardProps[][]
 ) => {
