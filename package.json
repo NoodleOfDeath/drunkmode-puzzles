@@ -1,6 +1,6 @@
 {
   "name": "drunkmode-puzzles",
-  "version": "0.1.13c",
+  "version": "0.1.17-b",
   "description": "Library used for creating custom puzzles for the Drunk Mode app",
   "main": "dist/index.js",
   "files": [
@@ -27,6 +27,7 @@
     "preversion": "yarn build",
     "version": "npm publish",
     "publish": "yarn build && npm publish",
+    "export": "tsx dev-tools/export.ts",
     "imdrunk": "tsx dev-tools/create.ts"
   },
   "author": "NoodleOfDeath",
@@ -37,8 +38,7 @@
   "homepage": "https://github.com/noodleofdeath/drunkmode-puzzles#readme",
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "styled-components": "^6.1.8"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.2",
@@ -63,5 +63,8 @@
     "eslint-scope": "^7.1.1",
     "tsx": "^4.7.1",
     "typescript": "*"
+  },
+  "dependencies": {
+    "drunkmode-puzzles": "^0.1.13-c"
   }
 }

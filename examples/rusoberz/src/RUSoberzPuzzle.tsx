@@ -37,7 +37,7 @@ export const RUSoberzPuzzle = ({
   data,
   onConfig,
   onProgress,
-  onFailure,
+  onMistake,
   onSuccess,
   ...props
 }: PuzzleProps) => {
@@ -83,9 +83,9 @@ export const RUSoberzPuzzle = ({
 
   React.useEffect(() => {
     if (yesCount > 0 && yesCount % 5 === 0) {
-      onFailure({ message: 'Quit cappin\'! You know you ain\'t sober!' });
+      onMistake({ message: 'Quit cappin\'! You know you ain\'t sober!' });
     }
-  }, [onFailure, yesCount]);
+  }, [onMistake, yesCount]);
 
   return (
     <StyledContainer>

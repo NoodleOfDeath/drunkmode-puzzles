@@ -25,8 +25,16 @@ const Foundation: React.FC<FoundationProps> = ({ suits, suitCards }) => {
               { ...provided.droppableProps }
               ref={ provided.innerRef }
               className="relative w-[12vw] h-[18vw] md:w-[80px] md:h-[120px] flex justify-center items-center bg-[#4b0000] border-[#7f1d1d80] border-[1vw] md:border-8 md:rounded-md rounded">
-              <div className="text-red-900 opacity-50 text-[10vw] md:text-[4rem] absolute">
-                <Image width={ 50 } height={ 50 } className='p-2' style={ { filter: 'invert(21%) sepia(100%) saturate(7414%) hue-rotate(359deg) brightness(50%) contrast(117%)' } } src={ pile } alt={ pile }></Image>
+              <div className="text-red-900 opacity-50 text-[10vw] md:text-[4rem]">
+                <Image 
+                  fill
+                  className='p-2' 
+                  style={ { 
+                    filter: 'invert(21%) sepia(100%) saturate(7414%) hue-rotate(359deg) brightness(50%) contrast(117%)',
+                    objectFit: 'contain',
+                  } } 
+                  src={ pile } 
+                  alt={ pile } />
               </div>
               {suitCards[index].map((card, cardIndex) => {
                 if (!card) { 

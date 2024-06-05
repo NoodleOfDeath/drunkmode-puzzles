@@ -20,6 +20,7 @@ export type PuzzlePackageInfo = {
   comingSoon?: boolean;
   config?: any;
   data?: any;
+  extra?: any;
 };
 
 export type PuzzlePackageProps = PuzzlePackageInfo & {
@@ -100,7 +101,51 @@ export type FailureOptions = MessageOptions & {
 
 export type SuccessOptions = MessageOptions;
 
-export type PuzzleEvent = 'config' | 'failure' | 'progress' | 'success';
+export type PuzzleEvent = 'config' | 'failure' | 'mistake' | 'progress' | 'success';
+
+export const DevReactNativeWebView = {
+  postMessage: (msg: string) => {
+    const { event, data } = PuzzleMessage.from(msg);
+    switch (event) {
+    case 'config':
+      (window as any).DrunkMode = {
+        ...(window as any).DrunkMode,
+        config: data,
+      };
+      break;
+    case 'progress':
+      (window as any).DrunkMode = {
+        ...(window as any).DrunkMode,
+        progress: data,
+      };
+      break;
+    case 'mistake':
+      (window as any).alert('You made a mistake!');
+      break;
+    case 'failure':
+      (window as any).alert('You failed the whole puzzle!');
+      break;
+    case 'success':
+      (window as any).alert('Nice job! You completed the puzzle!');
+      break;
+    default:
+      break;
+    }
+  },
+};
+
+export type IDrunkMode = {
+  config: any;
+  data: any;
+  preview: boolean;
+  colorScheme?: 'dark' | 'light';
+};
+
+export const DevDrunkMode: IDrunkMode = {
+  config: {},
+  data: {},
+  preview: true,
+};
 
 export class PuzzleMessage<
   Event extends PuzzleEvent,
@@ -152,9 +197,18 @@ export class PuzzleMessage<
   public static onProgress(data?: any) {
     (new PuzzleMessage('progress', data)).post();
   }
+  
+  /**
+   * Call this method when the user makes a mistake in the puzzle.
+   * 
+   * @param options
+   */
+  public static onMistake(options?: FailureOptions) {
+    (new PuzzleMessage('mistake', options)).post();
+  }
 
   /**
-   * Call this method when the user fails the puzzle.
+   * Call this method when the user outright fails the puzzle.
    * 
    * @param options
    */
@@ -175,8 +229,8 @@ export class PuzzleMessage<
     try {
       (window as any).ReactNativeWebView.postMessage(this.stringified);
     } catch (e) {
-      console.warn('Looks like you are not in a WebView');
-      console.warn(e);
+      (window as any).ReactNativeWebView = DevReactNativeWebView;
+      this.post();
     }
   }
 
@@ -184,7 +238,7 @@ export class PuzzleMessage<
 
 export class PuzzleEnv {
 
-  store: any;
+  store: IDrunkMode;
 
   get preview() {
     return this.store.preview;
@@ -197,16 +251,16 @@ export class PuzzleEnv {
   get data() {
     return this.store.data;
   }
+  
+  get colorScheme() {
+    return this.store.colorScheme;
+  }
 
   constructor() {
     try {
-      this.store = { ...(window as any).DrunkMode };
+      this.store = { ...((window as any).DrunkMode as IDrunkMode ?? DevDrunkMode) };
     } catch (e) {
-      this.store = {
-        config: {},
-        data: {},
-        preview: false,
-      };
+      this.store = DevDrunkMode;
     }
   }
 
@@ -219,6 +273,7 @@ export type PuzzleProps = {
   data?: any;
   onConfig?: (config?: any) => void;
   onProgress?: (progress?: any) => void;
+  onMistake: (failure?: FailureOptions) => void;
   onFailure: (failure?: FailureOptions) => void;
   onSuccess: (success?: SuccessOptions) => void;
 };
