@@ -130,7 +130,7 @@ export const Puzzle = ({
       };
     }); 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [state]);
   
   React.useEffect(() => {
     if (loaded) {

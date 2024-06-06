@@ -163,7 +163,7 @@ export const moveCardsAfterWin = async ({
   suitCards: Array<CardProps[]>;
   }) => {
   
-  const delay = () => new Promise(resolve => setTimeout(resolve, (30)));
+  const delay = () => new Promise(resolve => setTimeout(resolve, (19)));
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
 
