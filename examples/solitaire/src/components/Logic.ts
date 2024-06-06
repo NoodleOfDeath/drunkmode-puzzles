@@ -96,7 +96,7 @@ export const handleDragEnd = ({
     }
   }
 
-  // flip cards programmtically for saving state later
+  // flip cards programmatically for saving state later
   uTableau.forEach((column) => {
     if (column.length === 0) {
       return;
@@ -142,7 +142,7 @@ const isValidFoundationMove = (cardsToMove: CardProps[], foundationPile: CardPro
   );
 };
 
-// wheck win 
+// check win 
 export const checkWinningCondition = (tableauCards: CardProps[][], wasteCards: CardProps[], stockCards: CardProps[]) => {
   // Check if all cards in the tableau are face up
   const allCardsFaceUp = tableauCards.every((column) => column.every((card) => card.isFaceUp));
@@ -152,48 +152,102 @@ export const checkWinningCondition = (tableauCards: CardProps[][], wasteCards: C
   return allCardsFaceUp && wasteEmpty && stockEmpty;
 };
 
-export const moveCardsAfterWin = ({
+export const moveCardsAfterWin = async ({
+  setState,
   tableauCards,
-  setTableauCards,
   suitCards,
-  setSuitCards,
 }: 
-  {tableauCards: CardProps[][];
-  setTableauCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  {setState: any;
+    tableauCards: CardProps[][];
   suitCards: Array<CardProps[]>;
-  setSuitCards: React.Dispatch<React.SetStateAction<CardProps[][]>>;
   }) => {
+  
+  const delay = () => new Promise(resolve => setTimeout(resolve, (19)));
 
   const anyCardsLeftInTableau = tableauCards.some(column => column.length > 0);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tableauCards.forEach((column: any[], columnIndex: number) => {
-    const lastCard = column[column.length-1];
+  for (let columnIndex = 0; columnIndex < tableauCards.length; columnIndex++) {
+    const column = tableauCards[columnIndex];
+    const lastCard = column[column.length - 1];
     if (lastCard) {
-      suitCards.forEach((suit, suitIndex) => {
+      for (let suitIndex = 0; suitIndex < suitCards.length; suitIndex++) {
+        const suit = suitCards[suitIndex];
         const validMove = isValidFoundationMove([lastCard], suit, suitIndex);
         if (validMove) {
           const newFoundation = [...suitCards];
           const newTableau = [...tableauCards];
-          newFoundation[suitIndex].push(lastCard);
+          newFoundation[suitIndex] = [...newFoundation[suitIndex], lastCard];
           newTableau[columnIndex] = newTableau[columnIndex].slice(0, -1);
-          setTableauCards(newTableau);
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setState((prev: any)=>{
+            return {
+              ...prev, 
+              suitCards: newFoundation,
+              tableauCards: newTableau,
+            };
+          });
+
+          await delay();
+
           tableauCards = newTableau;
-          setSuitCards(newFoundation);
+          suitCards = newFoundation;
+
+          break; 
         }
-      });
+      }
     }
-  });
+  }
 
   if (anyCardsLeftInTableau) {
     moveCardsAfterWin({
-      setSuitCards,
-      setTableauCards,
+      setState,
       suitCards,
       tableauCards,
     });
-  } else {
-    return;
   }
+};
 
+export const handleMultipleDrag = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  source: any,
+  tableauCards: CardProps[][]
+) => {
+  
+  const sParts = source.source.droppableId.split('-');
+  if (sParts[0] === 'col') {
+    
+    const draggedCards = tableauCards[parseInt(sParts[1])].slice(source.source.index);
+    const draggedCard = document.querySelector(`[data-rbd-draggable-id="${draggedCards[0].id}"]`) as HTMLElement;
+    const translate = draggedCard.style.transform.match(/translate\(((-)?\d*.\d*)px, ((-)?\d*.\d*)px/);
+
+    for (let i = 0; i < draggedCards.length; i++) {
+      const draggedCard = document.querySelector(`[data-rbd-draggable-id="${draggedCards[i].id}"]`) as HTMLElement;
+      if (draggedCard && i > 0 && translate) {
+
+        const x = parseInt(translate[1]);
+        const y = parseInt(translate[3]);
+
+        draggedCard.style.transform = `translate(${x}px, ${y+ window.innerWidth*0.05}px)`;
+        draggedCard.style.zIndex = `${i+5000}`;
+      }
+    }
+  }
+  
+};
+
+export const removeTranslate = (
+  tableauCards: CardProps[][]
+) => {
+  for (let i = 0; i < tableauCards.length; i++) {
+  
+    for (let j = 0; j < tableauCards[i].length; j++) {
+      const draggedCard = document.querySelector(`[data-rbd-draggable-id="${tableauCards[i][j].id}"]`) as HTMLElement;
+      if (draggedCard) {
+        draggedCard.style.transform = '';
+        draggedCard.style.zIndex = '';
+      }
+    }
+  }
 };

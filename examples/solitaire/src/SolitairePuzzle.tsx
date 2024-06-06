@@ -8,7 +8,9 @@ import Foundation from './components/Foundation';
 import {
   checkWinningCondition,
   handleDragEnd,
+  handleMultipleDrag,
   moveCardsAfterWin,
+  removeTranslate,
 } from './components/Logic';
 import StockPile from './components/Stock';
 import Tableau from './components/Tableau';
@@ -83,11 +85,12 @@ export const Puzzle = ({
   onSuccess,
   ...props
 }: PuzzleProps) => {
-  
+
   const [loaded, setLoaded] = React.useState(false);
   const [state, setState] = React.useState(ZERO_STATE);
   const [_, setGameHistory] = React.useState<HistoryState[]>([]);
-  
+  const [isDragging, setIsDragging] = React.useState(false);
+
   const setCards = React.useCallback(() => {
     const shuffledCards = [...DECK].sort(() => Math.random() - 0.5);
     setState((prev) => {
@@ -96,7 +99,7 @@ export const Puzzle = ({
       for (let i = 1; i <= 7; i++) {
         const column = [];
         for (let j = 0; j < i; j++) {
-          if (j + 1 == i) {
+          if (j+1 == i) {
             shuffledCards.slice(0, 28)[currentIndex + j].isFaceUp = true;
           } else {
             shuffledCards.slice(0, 28)[currentIndex + j].isFaceUp = false;
@@ -106,29 +109,41 @@ export const Puzzle = ({
         cards.push(column);
         currentIndex += i;
       }
+
+      const newState: HistoryState = {
+        flippedCards: [],
+        stockCards: shuffledCards.slice(28), 
+        suitCards: state.suitCards,
+        tableauCards: cards, 
+        wasteCards: state.wasteCards,
+      };
+      setGameHistory((prev) => {
+        const state = [...(prev ?? []), newState];
+        onProgress?.(JSON.stringify(state));
+        return state;
+      });
+
       return {
         ...prev,
         stockCards: shuffledCards.slice(28),
         tableauCards: cards,
       };
-    });
-  }, []);
+    }); 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
   
   React.useEffect(() => {
-    if (data && !startFresh && !loaded) {
+    if (loaded) {
+      return;
+    }
+    setLoaded(true);
+    if (data && !startFresh) {
       try {
-        const { state, history } = (typeof data === 'string' ? JSON.parse(data) : data) as { state: HistoryState; history: HistoryState[]; };
-        if (history.length > 0) {
-          setState(state);
-          setGameHistory(history);
-        } else {
-          throw new Error('Error loading history');
-        }
+        const history = typeof data === 'string' ? JSON.parse(data) : data;
+        setGameHistory(history);
       } catch (e) {
         alert('there was an issue loading puzzle progress');
         setCards();
-      } finally {
-        setLoaded(true);
       }
     } else {
       setCards();
@@ -140,20 +155,17 @@ export const Puzzle = ({
       return;
     }
     setGameHistory((prev) => {
-      if (prev.length > 0) {
-        // contains flipped card state ( dt )
-        const dt = prev[prev.length - 1];
-        // contains last history state (dt minus 1)
-        const dt_1 = prev.length > 1 ? prev[prev.length - 2] : dt;
-        for (const column of dt_1.tableauCards) {
+      if (prev.length > 1) {
+        const curr = prev[prev.length - 1];
+        const old = prev[prev.length - 2];
+        for (const column of old.tableauCards) {
           for (const card of column) {
-            if (dt.flippedCards.some((c) => c.id === card.id)) {
-              // force previously face-down cards back to face-down
+            if (curr.flippedCards.some((c) => c.id === card.id)) {
               card.isFaceUp = false;
             }
           }
         }
-        setState(dt_1);
+        setState(old);
         return prev.slice(0, -1);
       }
       return prev;
@@ -175,7 +187,7 @@ export const Puzzle = ({
     
     const {
       failure,
-      ...dtState
+      ...dtState 
     } = handleDragEnd({
       destination,
       source,
@@ -183,24 +195,27 @@ export const Puzzle = ({
     });
 
     if (failure) {
+      removeTranslate(state.tableauCards);
       onMistake?.();
       return;
     }
-
+    
     const newState: HistoryState = {
       stockCards: state.stockCards, 
       ...dtState,
     };
     
-    setGameHistory((prev) => {
+    setGameHistory( (prev) => {
       const isWinner = checkWinningCondition(dtState.tableauCards, dtState.wasteCards, state.stockCards);
       if (isWinner && prev.length > 2) {
         moveCardsAfterWin({
-          setSuitCards: (suitCards) => setState({ ...newState, suitCards: suitCards as CardProps[][] }),
-          setTableauCards: (tableauCards) => setState({ ...newState, tableauCards: tableauCards as CardProps[][] }),
+          setState,
           ...dtState,
         });
-        onSuccess();
+        setTimeout(() => {
+          onSuccess();
+        }, 1000);
+        
       }
       const finalState = [...(prev ?? []), newState];
       onProgress?.(JSON.stringify({
@@ -211,9 +226,84 @@ export const Puzzle = ({
     });
 
     setState(newState);
-    
+    setIsDragging(false);
+    removeTranslate(state.tableauCards);
   }, [onMistake, onProgress, onSuccess, state]);
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleMultiple = (source: any) => {
+    setIsDragging(source);
+  };
+  
+  const handleOnDrawCard = () => {
+    setState((prev) => {
+      if (prev.stockCards.length > 0) {
+        const lastCard = prev.stockCards[prev.stockCards.length - 1]; 
+        lastCard.isFaceUp = true;
+
+        const newState: HistoryState = {
+          flippedCards: [],
+          stockCards: prev.stockCards.slice(0, -1), 
+          suitCards: state.suitCards, 
+          tableauCards: state.tableauCards, 
+          wasteCards: [...prev.wasteCards, lastCard],
+        };
+    
+        setGameHistory((prev) => {
+          
+          const state = [...(prev ?? []), newState];
+          onProgress?.(JSON.stringify(state));
+          return state;
+        });
+        return {
+          ...prev,
+          stockCards: prev.stockCards.slice(0, -1),
+          wasteCards: [...prev.wasteCards, lastCard],
+        };
+        
+      } else {
+        const resetWasteCards = prev.wasteCards.map((card: CardProps) => ({ ...card, isFaceUp: false })).reverse();
+        
+        const newState: HistoryState = {
+          flippedCards: [],
+          stockCards: resetWasteCards, 
+          suitCards: state.suitCards, 
+          tableauCards: state.tableauCards, 
+          wasteCards: [],
+        };
+    
+        setGameHistory((prev) => {
+          
+          const state = [...(prev ?? []), newState];
+          onProgress?.(JSON.stringify(state));
+          return state;
+        });
+        return {
+          ...prev,
+          stockCards: resetWasteCards,
+          wasteCards: [],
+        };
+      }
+    });
+  };
+  const isDrag = React.useCallback(() => {
+    handleMultipleDrag(isDragging, state.tableauCards);
+  }, [isDragging, state.tableauCards]);
+
+  React.useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('touchmove', isDrag);
+      window.addEventListener('mousemove', isDrag);
+    } else {
+      window.removeEventListener('touchmove', isDrag);
+      window.removeEventListener('mousemove', isDrag);
+    }
+
+    return () => {
+      window.removeEventListener('touchmove', isDrag);
+      window.removeEventListener('mousemove', isDrag);
+    };
+  }, [isDragging, isDrag]);
   return (
     <div
       className="flex flex-col px-2 w-full max-w-screen-lg mx-auto min-h-screen justify-center overscroll-none select-none"
@@ -223,31 +313,14 @@ export const Puzzle = ({
         </React.Fragment>
       )}
       {/* Foundation component */}
-      <DragDropContext onDragEnd={ handleDragEndWrapper }>
+      <DragDropContext
+        onDragEnd={ handleDragEndWrapper }
+        onDragStart={ handleMultiple }>
         <div className='flex justify-between'>
           <StockPile 
             cards={ state.stockCards }
             wasteCards={ state.wasteCards }
-            onDrawCard={ () => {
-              setState((prev) => {
-                if (prev.stockCards.length > 0) {
-                  const lastCard = prev.stockCards[prev.stockCards.length - 1]; 
-                  lastCard.isFaceUp = true;
-                  return {
-                    ...prev,
-                    stockCards: prev.stockCards.slice(0, -1),
-                    wasteCards: [...prev.wasteCards, lastCard],
-                  };
-                } else {
-                  const resetWasteCards = prev.wasteCards.map(card => ({ ...card, isFaceUp: false }));
-                  return {
-                    ...prev,
-                    stockCards: resetWasteCards.reverse(),
-                    wasteCards: [],
-                  };
-                }
-              });
-            } } />
+            onDrawCard={ handleOnDrawCard } />
           <Foundation 
             suits={ Object.values(SUIT_IMAGES) }
             suitCards={ state.suitCards } /> 
@@ -269,4 +342,3 @@ export const Puzzle = ({
     </div>
   );
 };
-

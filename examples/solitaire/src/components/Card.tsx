@@ -33,8 +33,7 @@ const Card: React.FC<CardProps> = ({
               <Image 
                 width={ 0 }
                 height={ 0 }
-                style={ { objectFit: 'contain' } }
-                className="py-[0.9vw] max-h-full w-auto"
+                className="py-[0.9vw] max-h-full w-auto object-contain"
                 src={ SUIT_IMAGES[suit] } 
                 alt={ SUITS[suit] } />
             </div>
@@ -43,8 +42,7 @@ const Card: React.FC<CardProps> = ({
             <Image 
               width={ 0 }
               height={ 0 }
-              style={ { objectFit: 'contain' } }
-              className="h-full w-auto p-2" 
+              className="h-full w-auto p-2 object-contain" 
               src={ SUIT_IMAGES[suit] } 
               alt={ SUITS[suit] } />
           </div>
@@ -54,8 +52,7 @@ const Card: React.FC<CardProps> = ({
           <Image 
             width={ 0 }
             height={ 0 }
-            style={ { objectFit: 'contain' } }
-            className="h-full w-auto p-2" 
+            className="h-full w-auto p-2 object-contain" 
             src={ './AppIcon.png' } 
             alt='Drunk mode App Icon' />
         </div>
