@@ -107,12 +107,12 @@ export const SudokuPuzzle = ({
         <StyledDifficulties>
           {['easy', 'medium', 'hard', 'extreme'].map((diff) => (
             <StyledButton
-              key={diff}
-              $active={difficulty === diff}
-              onClick={() => {
+              key={ diff }
+              $active={ difficulty === diff }
+              onClick={ () => {
                 setDifficulty(diff);
                 onConfig?.({ difficulty: diff });
-              }}>
+              } }>
               {diff}
             </StyledButton>
           ))}
@@ -125,17 +125,17 @@ export const SudokuPuzzle = ({
         </StyledDifficulties>
       )}
       <Board
-        ref={boardRef}
-        range={difficulty === 'easy' ? 4 : 9}
-        {...puzzle}
-        {...props} />
+        ref={ boardRef }
+        range={ difficulty === 'easy' ? 4 : 9 }
+        { ...puzzle }
+        { ...props } />
       <StyledRow>
         <StyledButton
-          onClick={() => handleRestart()}>
+          onClick={ () => handleRestart() }>
           Restart
         </StyledButton>
         <StyledButton
-          onClick={() => handleNewGame()}>
+          onClick={ () => handleNewGame() }>
           New Game
         </StyledButton>
       </StyledRow>

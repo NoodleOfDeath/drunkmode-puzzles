@@ -4,11 +4,11 @@ import React from 'react';
 
 import { PuzzleCanvas } from 'drunkmode-puzzles';
 
-import { Puzzle } from '~/Puzzle';
+import { WordsearchPuzzle } from '~/WordsearchPuzzle';
 
 const Index = () => {
   return (
-    <PuzzleCanvas puzzle={ Puzzle } />
+    <PuzzleCanvas puzzle={ WordsearchPuzzle } />
   );
 };
  

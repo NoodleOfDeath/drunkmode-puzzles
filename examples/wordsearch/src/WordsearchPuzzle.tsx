@@ -195,7 +195,7 @@ const generateGame = (wordsToHide: string[], gridSize: number) => {
   return { grid, placedWords };
 };
 
-export const Puzzle = ({
+export const WordsearchPuzzle = ({
   config,
   onConfig,
   onFailure,
@@ -391,12 +391,12 @@ export const Puzzle = ({
         <PreviewControls>
           {(['easy', 'medium', 'hard'] as const).map(d => (
             <Button
-              key={d}
-              $active={difficulty === d}
-              onClick={() => {
+              key={ d }
+              $active={ difficulty === d }
+              onClick={ () => {
                 setDifficulty(d);
                 onConfig && onConfig({ ...config, difficulty: d });
-              }}>
+              } }>
               {d.charAt(0).toUpperCase() + d.slice(1)}
             </Button>
           ))}
@@ -409,28 +409,28 @@ export const Puzzle = ({
 
       <WordList>
         {words.map(word => (
-          <WordItem key={word} $found={foundWords.includes(word)}>
+          <WordItem key={ word } $found={ foundWords.includes(word) }>
             {word}
           </WordItem>
         ))}
       </WordList>
 
-      <Grid $size={gridSize} onPointerLeave={() => { /* Optional: cancel drag if leaves grid? keep it for loose drags */ }}>
+      <Grid $size={ gridSize } onPointerLeave={ () => { /* Optional: cancel drag if leaves grid? keep it for loose drags */ } }>
         {gridChars.map((char, i) => (
           <Cell
-            key={i}
-            onPointerDown={(e) => handlePointerDown(i, e)}
-            onPointerEnter={() => handlePointerEnter(i)}
-            onPointerUp={handlePointerUp}
-            $selected={currentSelection.includes(i)}
-            $found={isFound(i)}
-            style={{ cursor: 'pointer' /* Ensure pointer events fire */ }}>
+            key={ i }
+            onPointerDown={ (e) => handlePointerDown(i, e) }
+            onPointerEnter={ () => handlePointerEnter(i) }
+            onPointerUp={ handlePointerUp }
+            $selected={ currentSelection.includes(i) }
+            $found={ isFound(i) }
+            style={ { cursor: 'pointer' /* Ensure pointer events fire */ } }>
             {char}
           </Cell>
         ))}
       </Grid>
 
-      <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+      <div style={ { fontSize: '0.8rem', opacity: 0.7 } }>
         Drag to select OR Tap start then end.
       </div>
 
