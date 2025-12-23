@@ -26,8 +26,8 @@
     "export": "yarn build && next export && tsx postexport.ts",
     "test": "next test",
     "eject": "next eject",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "format": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+    "lint": "eslint .",
+    "format": "eslint . --fix"
   },
   "engines": {
     "node": ">=18"

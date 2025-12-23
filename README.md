@@ -37,7 +37,7 @@ yarn add drunkmode-puzzles
 ## TL;DR Quick Start
 
 ```bash
-git clone git@gihub.com:noodleofdeath/drunkmode-puzzles.git
+git clone git@github.com:noodleofdeath/drunkmode-puzzles.git
 cd drunkmode-puzzles
 yarn imdrunk <YourPuzzle> <com.yourcompany.yourproduct.YourPuzzle>
 cd examples/YourPuzzle
