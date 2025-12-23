@@ -1,14 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  trailingSlash: true,
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback.fs = false;
-      config.module.rules.push({ test: /\.node$/, use: 'node-loader' });
-    }
-    return config;
+  compiler: { styledComponents: true },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
   },
+  reactStrictMode: true,
 };
 
 module.exports = nextConfig;

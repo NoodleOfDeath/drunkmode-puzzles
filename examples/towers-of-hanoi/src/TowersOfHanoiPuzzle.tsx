@@ -47,12 +47,12 @@ const StyledTower = styled.div`
   justify-content: center;
 `;
 
-const StyledDiskContainer = styled.div<Partial<TowersOfHanoiProps>>`
+const StyledDiskContainer = styled.div<{ $numberOfDisks?: number; $diskHeight?: number }>`
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
   justify-content: flex-start;
-  min-height: ${ ({ numberOfDisks = 0, diskHeight = 20 }) => numberOfDisks * diskHeight }px;
+  min-height: ${({ $numberOfDisks = 0, $diskHeight = 20 }) => $numberOfDisks * $diskHeight}px;
 `;
 
 const StyledButtonContainer = styled.div`
@@ -72,10 +72,19 @@ const StyledDifficulties = styled.div`
   align-self: center;
 `;
 
-const StyledButton = styled.button`
-  font-size: 1.2rem;
-  padding: 0.5rem;
-  border-radius: 1rem;
+const StyledButton = styled.button<{ $active?: boolean }>`
+  background: ${props => props.$active ? '#2196f3' : '#333'};
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  opacity: ${props => props.$active ? 1 : 0.8};
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const StyledRow = styled.div`
@@ -91,15 +100,15 @@ export const Disk = ({
   size,
   blockWidth = 20,
   height = 20,
-  color = COLORS[Math.floor(Math.random() * COLORS.length)], 
+  color = COLORS[Math.floor(Math.random() * COLORS.length)],
 }: DiskProps) => {
   return (
-    <div style={ { 
+    <div style={{
       background: color,
       height,
       outline: '1px solid black',
       width: `${size * blockWidth}px`,
-    } } />
+    }} />
   );
 };
 
@@ -117,7 +126,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
   diskHeight = 20,
   ...props
 }) => {
- 
+
   const [difficulty, setDifficulty] = React.useState(config?.difficulty ?? 'easy');
   const [loaded, setLoaded] = React.useState(false);
   const [towers, setTowers] = React.useState<Tower[]>([
@@ -129,7 +138,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
 
   const reset = React.useCallback(() => {
     setTowers([
-      Array.from({ length: numberOfDisks }, (_, i) => ({ 
+      Array.from({ length: numberOfDisks }, (_, i) => ({
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
         size: numberOfDisks - i,
       })),
@@ -190,7 +199,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
       }
     }
   }, [startFresh, data, loaded, numberOfDisks, numberOfTowers, reset, difficulty]);
-  
+
   React.useEffect(() => {
     setDifficulty(config?.difficulty ?? 'easy');
   }, [config?.difficulty]);
@@ -201,16 +210,13 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
         <StyledDifficulties>
           {['easy', 'medium', 'hard'].map((diff) => (
             <StyledButton
-              key={ diff }
-              style={ { 
-                backgroundColor: difficulty === diff ? 'black' : 'white', 
-                color: difficulty === diff ? 'white' : 'black', 
-              } }
-              onClick={ () => {
+              key={diff}
+              $active={difficulty === diff}
+              onClick={() => {
                 setDifficulty(diff);
                 onConfig?.({ difficulty: diff });
-              } }>
-              { diff }
+              }}>
+              {diff}
             </StyledButton>
           ))}
         </StyledDifficulties>
@@ -223,29 +229,29 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
       )}
       <StyledContainer>
         {towers.map((tower, index) => (
-          <StyledTower key={ index }>
+          <StyledTower key={index}>
             <StyledDiskContainer
-              numberOfDisks={ numberOfDisks }
-              diskHeight={ diskHeight }>
+              $numberOfDisks={numberOfDisks}
+              $diskHeight={diskHeight}>
               {tower.map((disk, i) => (
                 <Disk
-                  key={ i }
-                  { ...disk }
-                  blockWidth={ blockWidth }
-                  height={ diskHeight } />
+                  key={i}
+                  {...disk}
+                  blockWidth={blockWidth}
+                  height={diskHeight} />
               ))}
-              <div style={ {
-                background: 'black', 
+              <div style={{
+                background: 'black',
                 height: numberOfDisks * diskHeight + 10,
                 position: 'absolute',
                 width: blockWidth / 5,
-              } } />
+              }} />
             </StyledDiskContainer>
             <StyledButtonContainer>
-              <StyledButton onClick={ () => moveDisk(index, index - 1 > -1 ? index - 1 : numberOfTowers - 1) }>
+              <StyledButton onClick={() => moveDisk(index, index - 1 > -1 ? index - 1 : numberOfTowers - 1)}>
                 ←
               </StyledButton>
-              <StyledButton onClick={ () => moveDisk(index, (index + 1) % numberOfTowers) }>
+              <StyledButton onClick={() => moveDisk(index, (index + 1) % numberOfTowers)}>
                 →
               </StyledButton>
             </StyledButtonContainer>
@@ -254,7 +260,7 @@ export const TowersOfHanoiPuzzle: React.FC<TowersOfHanoiProps> = ({
       </StyledContainer>
       <StyledRow>
         <StyledButton
-          onClick={ () => handleRestart() }>
+          onClick={() => handleRestart()}>
           Restart
         </StyledButton>
       </StyledRow>

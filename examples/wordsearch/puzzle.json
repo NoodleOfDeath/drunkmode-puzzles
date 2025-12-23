@@ -1,0 +1,9 @@
+{
+  "name": "com.drunkmode.puzzles.wordsearch",
+  "version": "1.0.0",
+  "icon": "format-letter-case",
+  "displayName": "Word Search",
+  "description": "Find the hidden words in the grid to prove you can still read!",
+  "author": "DrunkMode",
+  "instructions": "Find all the words in the list to unlock your phone."
+}

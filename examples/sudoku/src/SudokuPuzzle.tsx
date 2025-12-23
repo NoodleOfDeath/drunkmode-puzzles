@@ -31,10 +31,19 @@ const StyledDifficulties = styled.div`
   align-self: center;
 `;
 
-const StyledButton = styled.button`
-  font-size: 1.2rem;
-  padding: 0.5rem;
-  border-radius: 1rem;
+const StyledButton = styled.button<{ $active?: boolean }>`
+  background: ${props => props.$active ? '#2196f3' : '#333'};
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  opacity: ${props => props.$active ? 1 : 0.8};
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const StyledRow = styled.div`
@@ -53,25 +62,25 @@ export const SudokuPuzzle = ({
   onConfig,
   ...props
 }: SudokuPuzzleProps) => {
-  
+
   const [difficulty, setDifficulty] = React.useState(config?.difficulty ?? 'easy');
   const [loaded, setLoaded] = React.useState(false);
   const [puzzle, setPuzzle] = React.useState<ReturnType<typeof generateSudokuPuzzle>>({ startingValues, values });
-  
+
   const boardRef = React.useRef<BoardRef>(null);
-  
+
   const handleRestart = React.useCallback(() => {
     if (window.confirm('Are you sure you want to reset your progress? This cannot be undone')) {
       boardRef.current?.reset();
     }
   }, []);
-  
+
   const handleNewGame = React.useCallback(() => {
     if (window.confirm('Are you sure you want to start a new game? You will lose all curren progress')) {
       setPuzzle(generateSudokuPuzzle({ difficulty }));
     }
   }, [difficulty]);
-  
+
   React.useEffect(() => {
     if (data && !startFresh && !loaded) {
       try {
@@ -87,28 +96,24 @@ export const SudokuPuzzle = ({
       setPuzzle(generateSudokuPuzzle({ difficulty }));
     }
   }, [startFresh, difficulty, data, loaded]);
-  
+
   React.useEffect(() => {
     setDifficulty(config?.difficulty ?? 'easy');
   }, [config?.difficulty]);
-  
+
   return (
     <StyledPuzzle>
       {props.preview ? (
         <StyledDifficulties>
           {['easy', 'medium', 'hard', 'extreme'].map((diff) => (
             <StyledButton
-              key={ diff }
-              style={ { 
-                backgroundColor: difficulty === diff ? 'black' : 'white', 
-                color: difficulty === diff ? 'white' : 'black', 
-              } }
-              className={ difficulty === diff ? 'chip' : undefined }
-              onClick={ () => {
+              key={diff}
+              $active={difficulty === diff}
+              onClick={() => {
                 setDifficulty(diff);
                 onConfig?.({ difficulty: diff });
-              } }>
-              { diff }
+              }}>
+              {diff}
             </StyledButton>
           ))}
         </StyledDifficulties>
@@ -120,17 +125,17 @@ export const SudokuPuzzle = ({
         </StyledDifficulties>
       )}
       <Board
-        ref={ boardRef }
-        range={ difficulty === 'easy' ? 4 : 9 }
-        { ...puzzle }
-        { ...props } />
+        ref={boardRef}
+        range={difficulty === 'easy' ? 4 : 9}
+        {...puzzle}
+        {...props} />
       <StyledRow>
         <StyledButton
-          onClick={ () => handleRestart() }>
+          onClick={() => handleRestart()}>
           Restart
         </StyledButton>
         <StyledButton
-          onClick={ () => handleNewGame() }>
+          onClick={() => handleNewGame()}>
           New Game
         </StyledButton>
       </StyledRow>
