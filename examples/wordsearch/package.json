@@ -1,5 +1,5 @@
 {
-  "name": "com.drunkmode.puzzles.wordsearch",
+  "name": "app.drunkmode.puzzles.wordsearch",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

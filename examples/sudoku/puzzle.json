@@ -1,5 +1,5 @@
 {
-  "name": "app.drunkmode.DrunkMode.sudoku",
+  "name": "app.drunkmode.puzzles.sudoku",
   "version": "1.0.0",
   "icon": "numeric-9-box-outline",
   "displayName": "Sudoku",

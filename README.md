@@ -48,13 +48,13 @@ yarn dev
 Only edit the file `Puzzle.tsx` in the `src` directory, unless you know what you are doing.
 Also, be sure to update your `puzzle.json` file with your information.
 
-When you are ready to submit, you can simply run:
+When you are ready to submit, simply run the following command found in the root of your puzzle directory:
 
 ```bash
 yarn export
 ```
 
-The copy the zip file in the `out` directory, and submit it to the Drunk Mode app.
+zip the directory found at `your_puzzle_directory/out` and submit it to the Drunk Mode app.
 
 ## Low-Level Usage
 
@@ -114,17 +114,10 @@ export default MyPuzzle;
 
 Once you have created your puzzle, you can package it up and submit it to the Drunk Mode app. 
 
-First build your puzzle which should be an `index.html` file. Create a directory that contains your `index.html` file and any other root level files or directories. Create a `puzzle.json` file in the same directory with the following format:
+First run `yarn export` or `npm run export` to build your puzzle. This will create an `out` directory in your puzzle directory.
 
-```json
-{
-  "name": "com.company.product.MyPuzzle",
-  "author": "My Name",
-  "icon": "puzzle", // icon name from https://material.io/resources/icons/
-  "displayName": "My Puzzle",
-  "description": "This is a description of my puzzle.",
-  "version": "1.0.0",
-}
+```bash
+yarn export
 ```
-  
-Finally, zip the directory and submit it to the Drunk Mode app. 
+
+Finally, zip the `out` directory and submit it to the Drunk Mode app. 

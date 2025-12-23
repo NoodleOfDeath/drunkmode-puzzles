@@ -1,5 +1,5 @@
 {
-  "name": "app.drunkmode.DrunkMode.solitaire",
+  "name": "app.drunkmode.puzzles.solitaire",
   "version": "1.0.0",
   "icon": "cards-playing-club-multiple",
   "displayName": "Solitaire",

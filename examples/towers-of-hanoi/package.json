@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "app.drunkmode.puzzles.towers-of-hanoi",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

@@ -1,5 +1,5 @@
 {
-  "name": "app.drunkmode.DrunkMode.towers-of-hanoi",
+  "name": "app.drunkmode.puzzles.towers-of-hanoi",
   "version": "1.0.0",
   "icon": "toy-brick",
   "displayName": "Towers of Hanoi",

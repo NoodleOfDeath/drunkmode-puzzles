@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "app.drunkmode.puzzles.rusoberz",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "next dev -p 6969",
     "start": "next start",
-    "build": "yarn format && next build",
+    "build": "next build",
     "export": "yarn build && next export && tsx postexport.ts",
     "test": "next test",
     "eject": "next eject",
