@@ -1,0 +1,9 @@
+{
+  "name": "com.drunkmode.spaceblaster",
+  "version": "1.0.0",
+  "icon": "rocket",
+  "displayName": "Space Blaster",
+  "description": "Defend the galaxy! Destroy enemy droids to verify sobriety.",
+  "author": "NoodleOfDeath",
+  "instructions": "Use arrows to move. Space to fire. Destroy the target number of enemies to win."
+}
