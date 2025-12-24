@@ -187,8 +187,9 @@ export const Puzzle = ({
   const [aiX, setAiX] = useState(GAME_WIDTH / 2 - PADDLE_WIDTH / 2);
   const [ball, setBall] = useState({
     dx: 0, dy: 0, x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, 
-  }); // Start static
+  }); 
   const [scores, setScores] = useState({ ai: 0, player: 0 });
+  const [servingSide, setServingSide] = useState<'ai' | 'player' | null>(null);
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameResult, setGameResult] = useState<'lose' | 'win' | null>(null);
@@ -202,12 +203,17 @@ export const Puzzle = ({
     },
     isPlaying: false,
     playerX: GAME_WIDTH / 2 - PADDLE_WIDTH / 2,
+    servingSide: null as 'ai' | 'player' | null,
   });
 
-  // Sync state to ref for loop access
+  // Sync state to ref
   useEffect(() => {
     gameStateRef.current.playerX = playerX;
   }, [playerX]);
+
+  useEffect(() => {
+    gameStateRef.current.servingSide = servingSide;
+  }, [servingSide]);
 
   // Sync Difficulty
   useEffect(() => {
@@ -216,30 +222,40 @@ export const Puzzle = ({
     }
   }, [config?.difficulty]);
 
-  const resetBall = useCallback((server: 'ai' | 'player' | 'random' = 'random') => {
-    gameStateRef.current.ball = {
-      dx: 0, dy: 0, x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, 
-    };
-    // Pause briefly then launch
-    setTimeout(() => {
-      if (!gameStateRef.current.isPlaying) {
-        return;
-      }
-      const speed = levelSettings.ballSpeed;
-      const startDx = (Math.random() > 0.5 ? 1 : -1) * (speed * 0.5);
-      
-      let startDy = 0;
-      if (server === 'player') {
-        startDy = -speed; // Serve Up (away from player)
-      } else if (server === 'ai') {
-        startDy = speed; // Serve Down (away from AI)
-      } else {
-        startDy = (Math.random() > 0.5 ? 1 : -1) * speed;
-      }
+  const resetBall = useCallback((server: 'ai' | 'player') => {
+    const state = gameStateRef.current;
+    
+    // Set Serve State
+    setServingSide(server);
+    state.servingSide = server;
 
-      gameStateRef.current.ball.dx = startDx;
-      gameStateRef.current.ball.dy = startDy;
-    }, 1000);
+    // Initial Position (Attached to paddle)
+    if (server === 'player') {
+      state.ball.x = state.playerX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+      state.ball.y = GAME_HEIGHT - 30 - BALL_SIZE - 2;
+      state.ball.dx = 0;
+      state.ball.dy = 0;
+    } else {
+      state.ball.x = state.aiX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+      state.ball.y = 15 + PADDLE_HEIGHT + 2;
+      state.ball.dx = 0;
+      state.ball.dy = 0;
+
+      // AI Auto-Serve after delay
+      setTimeout(() => {
+        if (!gameStateRef.current.isPlaying || gameStateRef.current.servingSide !== 'ai') {
+          return;
+        }
+        const speed = levelSettings.ballSpeed;
+        gameStateRef.current.ball.dy = speed; // Serve Down
+        gameStateRef.current.ball.dx = (Math.random() > 0.5 ? 1 : -1) * (speed * 0.5);
+        setServingSide(null);
+        gameStateRef.current.servingSide = null;
+      }, 1000);
+    }
+    
+    // Trigger visual update
+    setBall({ ...state.ball });
   }, [levelSettings]);
 
   const startGame = useCallback(() => {
@@ -247,7 +263,7 @@ export const Puzzle = ({
     setGameResult(null);
     setIsPlaying(true);
     gameStateRef.current.isPlaying = true;
-    resetBall('random');
+    resetBall('player'); // Player always serves first
   }, [resetBall]);
 
   // Input Handling
@@ -280,7 +296,26 @@ export const Puzzle = ({
         ballSpeed, aiSpeed, goal, 
       } = levelSettings;
 
-      // 1. Move Player (Keys)
+      // 1. Handle Serving Logic
+      if (state.servingSide === 'player') {
+        // Follow Player Paddle
+        state.ball.x = state.playerX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+        state.ball.y = GAME_HEIGHT - 30 - BALL_SIZE - 2;
+         
+        // Launch on Up Key
+        if (activeKeys.has('ArrowUp')) {
+          state.servingSide = null;
+          setServingSide(null);
+          state.ball.dy = -ballSpeed;
+          state.ball.dx = (Math.random() > 0.5 ? 1 : -1) * (ballSpeed * 0.5);
+        }
+      } else if (state.servingSide === 'ai') {
+        // Follow AI Paddle
+        state.ball.x = state.aiX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+        state.ball.y = 15 + PADDLE_HEIGHT + 2;
+      }
+
+      // 2. Move Player (Keys)
       if (activeKeys.has('ArrowLeft')) {
         setPlayerX(x => Math.max(0, x - 7));
       }
@@ -288,88 +323,91 @@ export const Puzzle = ({
         setPlayerX(x => Math.min(GAME_WIDTH - PADDLE_WIDTH, x + 7));
       }
 
-      // 2. Move AI
+      // 3. Move AI
       // Simple tracking with speed limit
+      // If serving, AI moves to center (optional) or stays put? 
+      // Let's make AI follow ball even when serving to look natural, or stay center.
+      // If ball is attached to AI, AI usually stays center or random moves?
+      // For simplicity, normal AI tracking works fine (it will track its own paddle center if ball is there).
       const centerVid = state.aiX + PADDLE_WIDTH / 2;
-      if (centerVid < state.ball.x - 10) {
+      // Target is ball X, or Center if Resetting?
+      const targetX = state.servingSide === 'ai' ? GAME_WIDTH/2 : state.ball.x;
+      
+      if (centerVid < targetX - 5) {
         state.aiX = Math.min(GAME_WIDTH - PADDLE_WIDTH, state.aiX + aiSpeed);
-      } else if (centerVid > state.ball.x + 10) {
+      } else if (centerVid > targetX + 5) {
         state.aiX = Math.max(0, state.aiX - aiSpeed);
       }
       setAiX(state.aiX);
 
-      // 3. Move Ball
-      state.ball.x += state.ball.dx;
-      state.ball.y += state.ball.dy;
+      // 4. Move Ball (Only if not serving)
+      if (!state.servingSide) {
+        state.ball.x += state.ball.dx;
+        state.ball.y += state.ball.dy;
 
-      // Walls (Left/Right)
-      if (state.ball.x <= 0 || state.ball.x >= GAME_WIDTH - BALL_SIZE) {
-        state.ball.dx *= -1;
-      }
+        // Walls (Left/Right)
+        if (state.ball.x <= 0 || state.ball.x >= GAME_WIDTH - BALL_SIZE) {
+          state.ball.dx *= -1;
+        }
 
-      // Paddles Collision
-      const playerY = GAME_HEIGHT - 30; // 30px from bottom matches styled
-      const aiY = 15; // 15px top
+        // Paddles Collision
+        const playerY = GAME_HEIGHT - 30; 
+        const aiY = 15; 
 
-      // Player Hit
-      if (
-        state.ball.y + BALL_SIZE >= playerY && 
-        state.ball.y + BALL_SIZE <= playerY + PADDLE_HEIGHT &&
-        state.ball.x + BALL_SIZE >= state.playerX &&
-        state.ball.x <= state.playerX + PADDLE_WIDTH
-      ) {
-        // Ensure ball moves up
-        state.ball.dy = -Math.abs(state.ball.dy);
-        // Add some english based on paddle hit position
-        const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.playerX + PADDLE_WIDTH/2);
-        state.ball.dx = hitPoint * 0.15; 
-      }
+        // Player Hit
+        if (
+          state.ball.y + BALL_SIZE >= playerY && 
+            state.ball.y + BALL_SIZE <= playerY + PADDLE_HEIGHT &&
+            state.ball.x + BALL_SIZE >= state.playerX &&
+            state.ball.x <= state.playerX + PADDLE_WIDTH
+        ) {
+          state.ball.dy = -Math.abs(state.ball.dy);
+          const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.playerX + PADDLE_WIDTH/2);
+          state.ball.dx = hitPoint * 0.15; 
+        }
 
-      // AI Hit
-      if (
-        state.ball.y <= aiY + PADDLE_HEIGHT && 
-        state.ball.y >= aiY &&
-        state.ball.x + BALL_SIZE >= state.aiX &&
-        state.ball.x <= state.aiX + PADDLE_WIDTH
-      ) {
-        // Ensure ball moves down
-        state.ball.dy = Math.abs(state.ball.dy);
-        // Add some english
-        const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.aiX + PADDLE_WIDTH/2);
-        state.ball.dx = hitPoint * 0.15; 
-      }
+        // AI Hit
+        if (
+          state.ball.y <= aiY + PADDLE_HEIGHT && 
+            state.ball.y >= aiY &&
+            state.ball.x + BALL_SIZE >= state.aiX &&
+            state.ball.x <= state.aiX + PADDLE_WIDTH
+        ) {
+          state.ball.dy = Math.abs(state.ball.dy);
+          const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.aiX + PADDLE_WIDTH/2);
+          state.ball.dx = hitPoint * 0.15; 
+        }
 
-      // Scoring
-      if (state.ball.y > GAME_HEIGHT) {
-        // AI Point (Player Missed) -> AI Serves Next? 
-        // Logic: "starts from a server or the person who won the last point"
-        // AI scored -> AI serves.
-        setScores(s => {
-          const newState = { ...s, ai: s.ai + 1 };
-          if (newState.ai >= goal) {
-            setIsPlaying(false);
-            state.isPlaying = false;
-            setGameResult('lose');
-            onFailure && onFailure({ message: 'You Lost to the Machine!' });
-          } else {
-            resetBall('ai');
-          }
-          return newState;
-        });
-      } else if (state.ball.y < -BALL_SIZE) {
-        // Player Point (AI Missed) -> Player Serves Next
-        setScores(s => {
-          const newState = { ...s, player: s.player + 1 };
-          if (newState.player >= goal) {
-            setIsPlaying(false);
-            state.isPlaying = false;
-            setGameResult('win');
-            onSuccess && onSuccess({ message: 'Victory!' });
-          } else {
-            resetBall('player');
-          }
-          return newState;
-        });
+        // Scoring
+        if (state.ball.y > GAME_HEIGHT) {
+          // AI Point - AI Serves
+          setScores(s => {
+            const newState = { ...s, ai: s.ai + 1 };
+            if (newState.ai >= goal) {
+              setIsPlaying(false);
+              state.isPlaying = false;
+              setGameResult('lose');
+              onFailure && onFailure({ message: 'You Lost to the Machine!' });
+            } else {
+              resetBall('ai');
+            }
+            return newState;
+          });
+        } else if (state.ball.y < -BALL_SIZE) {
+          // Player Point - Player Serves
+          setScores(s => {
+            const newState = { ...s, player: s.player + 1 };
+            if (newState.player >= goal) {
+              setIsPlaying(false);
+              state.isPlaying = false;
+              setGameResult('win');
+              onSuccess && onSuccess({ message: 'Victory!' });
+            } else {
+              resetBall('player');
+            }
+            return newState;
+          });
+        }
       }
 
       setBall({ ...state.ball });
@@ -388,9 +426,19 @@ export const Puzzle = ({
     const touch = e.touches[0];
     const rect = areaRef.current.getBoundingClientRect();
     const relX = touch.clientX - rect.left;
-    // Center paddle on finger
     const newX = Math.max(0, Math.min(GAME_WIDTH - PADDLE_WIDTH, relX - PADDLE_WIDTH / 2));
     setPlayerX(newX);
+  };
+
+  const handleServe = () => {
+    if (servingSide === 'player') {
+      setActiveKeys(prev => new Set(prev).add('ArrowUp'));
+      // Clear immediately next frame logic handles it, or force ref update
+      // To ensure state update is caught
+      setTimeout(() => setActiveKeys(prev => {
+        const n = new Set(prev); n.delete('ArrowUp'); return n; 
+      }), 50);
+    }
   };
 
   return (
@@ -407,7 +455,7 @@ export const Puzzle = ({
                 setIsPlaying(false); 
                 setScores({ ai: 0, player: 0 });
                 setBall({
-                  dx: 0, dy: 0, x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, 
+                  dx: 0, dy: 0, x: GAME_WIDTH/2, y: GAME_HEIGHT/2, 
                 });
                 setGameResult(null);
               } }>
@@ -424,10 +472,10 @@ export const Puzzle = ({
       
       <GameArea 
         ref={ areaRef }
-        onTouchMove={ handleTouchMove }>
+        onTouchMove={ handleTouchMove }
+        onClick={ handleServe }>
         <Divider />
          
-        {/* Live Score Background */}
         <ScoreBoard>
           <div style={ {
             left: '80px', position: 'absolute', top: '-100px', transform: 'rotate(180deg)', 
@@ -452,7 +500,7 @@ export const Puzzle = ({
             <div style={ {
               fontSize: '0.9rem', marginTop: 15, opacity: 0.8, 
             } }>
-              Drag or Use Arrows to Move
+              Drag or Arrows to Move. Tap/Up to Serve.
             </div>
           </Overlay>
         )}
@@ -478,12 +526,19 @@ export const Puzzle = ({
             <Button onClick={ startGame } $color="#00f2ff">PLAY AGAIN</Button>
           </Overlay>
         )}
+         
+        {/* Serve Prompt */}
+        {gameStateRef.current.servingSide === 'player' && isPlaying && (
+          <div style={ {
+            animation: 'pulse 1s infinite', bottom: 100, color: '#00f2ff', fontWeight: 'bold', position: 'absolute', textAlign: 'center', width: '100%', 
+          } }>
+            TAP OR PRESS UP TO SERVE
+          </div>
+        )}
 
-        {/* Entities */}
         <Paddle $x={ aiX } $y={ 15 } />
         <Paddle $x={ playerX } $y={ GAME_HEIGHT - 30 } $isPlayer />
         <Ball $x={ ball.x } $y={ ball.y } />
-
       </GameArea>
       
       <Controls>
@@ -502,19 +557,29 @@ export const Puzzle = ({
           ◀
         </Button>
 
-        <Button 
-          onClick={ () => {
-            if (window.confirm('Quit Match?')) {
-              setIsPlaying(false);
-              setGameResult('lose'); 
-              setScores({ ai: 0, player: 0 });
-            }
-          } }
-          style={ {
-            background: 'transparent', borderColor: 'transparent', fontSize: '0.8rem', opacity: 0.6, padding: '12px 20px', 
-          } }>
-          RESET
-        </Button>
+        {servingSide === 'player' && isPlaying ? (
+          <Button 
+            onClick={ handleServe }
+            style={ {
+              background: '#00f2ff', border: 'none', boxShadow: '0 0 10px #00f2ff', color: '#000', fontSize: '0.9rem', padding: '12px 20px', 
+            } }>
+            SERVE
+          </Button>
+        ) : (
+          <Button 
+            onClick={ () => {
+              if (window.confirm('Quit Match?')) {
+                setIsPlaying(false);
+                setGameResult('lose'); 
+                setScores({ ai: 0, player: 0 });
+              }
+            } }
+            style={ {
+              background: 'transparent', borderColor: 'transparent', fontSize: '0.8rem', opacity: 0.6, padding: '12px 20px', 
+            } }>
+            RESET
+          </Button>
+        )}
 
         <Button 
           style={ {
@@ -531,7 +596,6 @@ export const Puzzle = ({
           ▶
         </Button>
       </Controls>
-
     </Container>
   );
 };
