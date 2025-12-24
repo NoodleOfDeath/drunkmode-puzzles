@@ -1,0 +1,9 @@
+{
+  "name": "com.drunkmode.pong",
+  "version": "1.0.0",
+  "icon": "table-tennis",
+  "displayName": "Neon Pong",
+  "description": "Beat the AI in this classic retro game to verify sobriety.",
+  "author": "NoodleOfDeath",
+  "instructions": "Drag to move your paddle. First to score the goal wins."
+}
