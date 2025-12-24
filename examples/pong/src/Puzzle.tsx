@@ -11,23 +11,22 @@ import styled from 'styled-components';
 // -- TYPES --
 
 type Difficulty = 'easy' | 'hard' | 'medium';
-type Point = { x: number; y: number };
 
 const GAME_WIDTH = 300;
 const GAME_HEIGHT = 450;
-const PADDLE_WIDTH = 80;
+const PADDLE_WIDTH = 60;
 const PADDLE_HEIGHT = 15;
 const BALL_SIZE = 12;
 
 const LEVELS = {
   easy: {
-    aiSpeed: 2, ballSpeed: 4, goal: 3, 
+    aiPaddleWidth: 40, aiSpeed: 1.25, ballSpeed: 5, goal: 3, playerPaddleWidth: 70, 
   },
   hard: {
-    aiSpeed: 5.5, ballSpeed: 8, goal: 7, 
+    aiPaddleWidth: 60, aiSpeed: 2.75, ballSpeed: 8, goal: 7, playerPaddleWidth: 40, 
   },
   medium: {
-    aiSpeed: 3.5, ballSpeed: 6, goal: 5, 
+    aiPaddleWidth: 50, aiSpeed: 2, ballSpeed: 6, goal: 5, playerPaddleWidth: 50, 
   },
 };
 
@@ -69,14 +68,14 @@ const Divider = styled.div`
   border-top: 2px dashed rgba(204, 0, 255, 0.5);
 `;
 
-const Paddle = styled.div.attrs<{ $x: number; $y: number; $isPlayer?: boolean }>(props => ({
+const Paddle = styled.div.attrs<{ $isPlayer?: boolean; $width: number; $x: number; $y: number }>(props => ({
   style: {
     left: `${props.$x}px`,
     top: `${props.$y}px`,
+    width: `${props.$width}px`,
   },
-}))<{ $x: number; $y: number; $isPlayer?: boolean }>`
+}))<{ $isPlayer?: boolean; $width: number; $x: number; $y: number }>`
   position: absolute;
-  width: ${PADDLE_WIDTH}px;
   height: ${PADDLE_HEIGHT}px;
   background-color: ${props => props.$isPlayer ? '#00f2ff' : '#ff0055'};
   border-radius: 4px;
@@ -231,27 +230,18 @@ export const Puzzle = ({
 
     // Initial Position (Attached to paddle)
     if (server === 'player') {
-      state.ball.x = state.playerX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+      state.ball.x = state.playerX + levelSettings.playerPaddleWidth / 2 - BALL_SIZE / 2;
       state.ball.y = GAME_HEIGHT - 30 - BALL_SIZE - 2;
       state.ball.dx = 0;
       state.ball.dy = 0;
     } else {
-      state.ball.x = state.aiX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+      state.ball.x = state.aiX + levelSettings.aiPaddleWidth / 2 - BALL_SIZE / 2;
       state.ball.y = 15 + PADDLE_HEIGHT + 2;
       state.ball.dx = 0;
       state.ball.dy = 0;
 
-      // AI Auto-Serve after delay
-      setTimeout(() => {
-        if (!gameStateRef.current.isPlaying || gameStateRef.current.servingSide !== 'ai') {
-          return;
-        }
-        const speed = levelSettings.ballSpeed;
-        gameStateRef.current.ball.dy = speed; // Serve Down
-        gameStateRef.current.ball.dx = (Math.random() > 0.5 ? 1 : -1) * (speed * 0.5);
-        setServingSide(null);
-        gameStateRef.current.servingSide = null;
-      }, 1000);
+      // AI Serves (Wait for User Tap)
+
     }
     
     // Trigger visual update
@@ -293,25 +283,21 @@ export const Puzzle = ({
 
       const state = gameStateRef.current;
       const {
-        ballSpeed, aiSpeed, goal, 
+        aiPaddleWidth,
+        aiSpeed,
+        ballSpeed,
+        goal,
+        playerPaddleWidth,
       } = levelSettings;
 
       // 1. Handle Serving Logic
       if (state.servingSide === 'player') {
         // Follow Player Paddle
-        state.ball.x = state.playerX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+        state.ball.x = state.playerX + playerPaddleWidth / 2 - BALL_SIZE / 2;
         state.ball.y = GAME_HEIGHT - 30 - BALL_SIZE - 2;
-         
-        // Launch on Up Key
-        if (activeKeys.has('ArrowUp')) {
-          state.servingSide = null;
-          setServingSide(null);
-          state.ball.dy = -ballSpeed;
-          state.ball.dx = (Math.random() > 0.5 ? 1 : -1) * (ballSpeed * 0.5);
-        }
       } else if (state.servingSide === 'ai') {
         // Follow AI Paddle
-        state.ball.x = state.aiX + PADDLE_WIDTH / 2 - BALL_SIZE / 2;
+        state.ball.x = state.aiX + aiPaddleWidth / 2 - BALL_SIZE / 2;
         state.ball.y = 15 + PADDLE_HEIGHT + 2;
       }
 
@@ -320,21 +306,16 @@ export const Puzzle = ({
         setPlayerX(x => Math.max(0, x - 7));
       }
       if (activeKeys.has('ArrowRight')) {
-        setPlayerX(x => Math.min(GAME_WIDTH - PADDLE_WIDTH, x + 7));
+        setPlayerX(x => Math.min(GAME_WIDTH - playerPaddleWidth, x + 7));
       }
 
       // 3. Move AI
-      // Simple tracking with speed limit
-      // If serving, AI moves to center (optional) or stays put? 
-      // Let's make AI follow ball even when serving to look natural, or stay center.
-      // If ball is attached to AI, AI usually stays center or random moves?
-      // For simplicity, normal AI tracking works fine (it will track its own paddle center if ball is there).
-      const centerVid = state.aiX + PADDLE_WIDTH / 2;
+      const centerVid = state.aiX + aiPaddleWidth / 2;
       // Target is ball X, or Center if Resetting?
       const targetX = state.servingSide === 'ai' ? GAME_WIDTH/2 : state.ball.x;
       
       if (centerVid < targetX - 5) {
-        state.aiX = Math.min(GAME_WIDTH - PADDLE_WIDTH, state.aiX + aiSpeed);
+        state.aiX = Math.min(GAME_WIDTH - aiPaddleWidth, state.aiX + aiSpeed);
       } else if (centerVid > targetX + 5) {
         state.aiX = Math.max(0, state.aiX - aiSpeed);
       }
@@ -359,11 +340,11 @@ export const Puzzle = ({
           state.ball.y + BALL_SIZE >= playerY && 
             state.ball.y + BALL_SIZE <= playerY + PADDLE_HEIGHT &&
             state.ball.x + BALL_SIZE >= state.playerX &&
-            state.ball.x <= state.playerX + PADDLE_WIDTH
+            state.ball.x <= state.playerX + playerPaddleWidth
         ) {
           state.ball.dy = -Math.abs(state.ball.dy);
-          const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.playerX + PADDLE_WIDTH/2);
-          state.ball.dx = hitPoint * 0.15; 
+          const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.playerX + playerPaddleWidth/2);
+          state.ball.dx = hitPoint * (ballSpeed/playerPaddleWidth); // Normalized spin
         }
 
         // AI Hit
@@ -371,11 +352,11 @@ export const Puzzle = ({
           state.ball.y <= aiY + PADDLE_HEIGHT && 
             state.ball.y >= aiY &&
             state.ball.x + BALL_SIZE >= state.aiX &&
-            state.ball.x <= state.aiX + PADDLE_WIDTH
+            state.ball.x <= state.aiX + aiPaddleWidth
         ) {
           state.ball.dy = Math.abs(state.ball.dy);
-          const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.aiX + PADDLE_WIDTH/2);
-          state.ball.dx = hitPoint * 0.15; 
+          const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.aiX + aiPaddleWidth/2);
+          state.ball.dx = hitPoint * (ballSpeed/aiPaddleWidth); 
         }
 
         // Scoring
@@ -415,7 +396,7 @@ export const Puzzle = ({
     }, 16); // 60 FPS
 
     return () => clearInterval(loop);
-  }, [isPlaying, activeKeys, levelSettings, resetBall]);
+  }, [isPlaying, activeKeys, levelSettings, resetBall, onFailure, onSuccess]);
 
   // Touch Drag Logic
   const areaRef = useRef<HTMLDivElement>(null);
@@ -426,18 +407,22 @@ export const Puzzle = ({
     const touch = e.touches[0];
     const rect = areaRef.current.getBoundingClientRect();
     const relX = touch.clientX - rect.left;
-    const newX = Math.max(0, Math.min(GAME_WIDTH - PADDLE_WIDTH, relX - PADDLE_WIDTH / 2));
+    const newX = Math.max(0, Math.min(GAME_WIDTH - levelSettings.playerPaddleWidth, relX - levelSettings.playerPaddleWidth / 2));
     setPlayerX(newX);
   };
 
   const handleServe = () => {
-    if (servingSide === 'player') {
-      setActiveKeys(prev => new Set(prev).add('ArrowUp'));
-      // Clear immediately next frame logic handles it, or force ref update
-      // To ensure state update is caught
-      setTimeout(() => setActiveKeys(prev => {
-        const n = new Set(prev); n.delete('ArrowUp'); return n; 
-      }), 50);
+    const state = gameStateRef.current;
+    if (state.servingSide) {
+      const speed = levelSettings.ballSpeed;
+      if (state.servingSide === 'player') {
+        state.ball.dy = -speed;
+      } else {
+        state.ball.dy = speed;
+      }
+      state.ball.dx = (Math.random() > 0.5 ? 1 : -1) * (speed * 0.5);
+      state.servingSide = null;
+      setServingSide(null);
     }
   };
 
@@ -466,8 +451,19 @@ export const Puzzle = ({
       )}
 
       <Header>
-        PONG -
-        {difficulty.toUpperCase()}
+        <div>
+          PONG -
+          {difficulty.toUpperCase()}
+        </div>
+        <div style={ {
+          fontSize: '0.8rem', marginTop: 5, opacity: 0.7, 
+        } }>
+          FIRST TO 
+          {' '}
+          {levelSettings.goal}
+          {' '}
+          WINS
+        </div>
       </Header>
       
       <GameArea 
@@ -500,7 +496,7 @@ export const Puzzle = ({
             <div style={ {
               fontSize: '0.9rem', marginTop: 15, opacity: 0.8, 
             } }>
-              Drag or Arrows to Move. Tap/Up to Serve.
+              Drag or Arrows to Move. Tap to Serve.
             </div>
           </Overlay>
         )}
@@ -528,16 +524,16 @@ export const Puzzle = ({
         )}
          
         {/* Serve Prompt */}
-        {gameStateRef.current.servingSide === 'player' && isPlaying && (
+        {(gameStateRef.current.servingSide === 'player' || gameStateRef.current.servingSide === 'ai') && isPlaying && (
           <div style={ {
             animation: 'pulse 1s infinite', bottom: 100, color: '#00f2ff', fontWeight: 'bold', position: 'absolute', textAlign: 'center', width: '100%', 
           } }>
-            TAP OR PRESS UP TO SERVE
+            TAP TO SERVE
           </div>
         )}
 
-        <Paddle $x={ aiX } $y={ 15 } />
-        <Paddle $x={ playerX } $y={ GAME_HEIGHT - 30 } $isPlayer />
+        <Paddle $width={ levelSettings.aiPaddleWidth } $x={ aiX } $y={ 15 } />
+        <Paddle $isPlayer $width={ levelSettings.playerPaddleWidth } $x={ playerX } $y={ GAME_HEIGHT - 30 } />
         <Ball $x={ ball.x } $y={ ball.y } />
       </GameArea>
       
@@ -557,7 +553,7 @@ export const Puzzle = ({
           ◀
         </Button>
 
-        {servingSide === 'player' && isPlaying ? (
+        {(servingSide === 'player' || servingSide === 'ai') && isPlaying ? (
           <Button 
             onClick={ handleServe }
             style={ {

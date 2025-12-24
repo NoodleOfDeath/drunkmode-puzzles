@@ -21,7 +21,7 @@ const LEVELS = {
     goal: 5, speed: 200, speedIncrement: 2, 
   },
   hard: {
-    goal: 15, speed: 100, speedIncrement: 6, 
+    goal: 20, speed: 100, speedIncrement: 6, 
   },
   medium: {
     goal: 10, speed: 150, speedIncrement: 4, 
