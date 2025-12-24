@@ -1,0 +1,9 @@
+{
+  "name": "app.drunkmode.puzzles.snake",
+  "version": "1.0.0",
+  "icon": "gamepad-variant",
+  "displayName": "Snake",
+  "description": "Playing the classic Snake game to verify sobriety.",
+  "author": "DrunkMode",
+  "instructions": "Eat the food to grow larger. Avoid hitting the walls or yourself. Reach the target score to unlock."
+}
