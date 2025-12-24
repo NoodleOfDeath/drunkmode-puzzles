@@ -216,22 +216,7 @@ export const Puzzle = ({
     }
   }, [config?.difficulty]);
 
-  const startGame = useCallback(() => {
-    // Randomize start direction
-    const startDx = (Math.random() > 0.5 ? 1 : -1) * (levelSettings.ballSpeed * 0.5);
-    const startDy = levelSettings.ballSpeed * (Math.random() > 0.5 ? 1 : -1);
-    
-    gameStateRef.current.ball = {
-      dx: startDx, dy: startDy, x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, 
-    };
-    gameStateRef.current.isPlaying = true;
-    
-    setScores({ ai: 0, player: 0 });
-    setGameResult(null);
-    setIsPlaying(true);
-  }, [levelSettings]);
-
-  const resetBall = useCallback(() => {
+  const resetBall = useCallback((server: 'ai' | 'player' | 'random' = 'random') => {
     gameStateRef.current.ball = {
       dx: 0, dy: 0, x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2, 
     };
@@ -240,12 +225,30 @@ export const Puzzle = ({
       if (!gameStateRef.current.isPlaying) {
         return;
       }
-      const startDx = (Math.random() > 0.5 ? 1 : -1) * (levelSettings.ballSpeed * 0.5);
-      const startDy = (Math.random() > 0.5 ? 1 : -1) * levelSettings.ballSpeed; // Usually towards winner or random? Random is fair.
+      const speed = levelSettings.ballSpeed;
+      const startDx = (Math.random() > 0.5 ? 1 : -1) * (speed * 0.5);
+      
+      let startDy = 0;
+      if (server === 'player') {
+        startDy = -speed; // Serve Up (away from player)
+      } else if (server === 'ai') {
+        startDy = speed; // Serve Down (away from AI)
+      } else {
+        startDy = (Math.random() > 0.5 ? 1 : -1) * speed;
+      }
+
       gameStateRef.current.ball.dx = startDx;
       gameStateRef.current.ball.dy = startDy;
     }, 1000);
   }, [levelSettings]);
+
+  const startGame = useCallback(() => {
+    setScores({ ai: 0, player: 0 });
+    setGameResult(null);
+    setIsPlaying(true);
+    gameStateRef.current.isPlaying = true;
+    resetBall('random');
+  }, [resetBall]);
 
   // Input Handling
   useEffect(() => {
@@ -315,6 +318,7 @@ export const Puzzle = ({
         state.ball.x + BALL_SIZE >= state.playerX &&
         state.ball.x <= state.playerX + PADDLE_WIDTH
       ) {
+        // Ensure ball moves up
         state.ball.dy = -Math.abs(state.ball.dy);
         // Add some english based on paddle hit position
         const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.playerX + PADDLE_WIDTH/2);
@@ -328,6 +332,7 @@ export const Puzzle = ({
         state.ball.x + BALL_SIZE >= state.aiX &&
         state.ball.x <= state.aiX + PADDLE_WIDTH
       ) {
+        // Ensure ball moves down
         state.ball.dy = Math.abs(state.ball.dy);
         // Add some english
         const hitPoint = (state.ball.x + BALL_SIZE/2) - (state.aiX + PADDLE_WIDTH/2);
@@ -336,7 +341,9 @@ export const Puzzle = ({
 
       // Scoring
       if (state.ball.y > GAME_HEIGHT) {
-        // AI Point
+        // AI Point (Player Missed) -> AI Serves Next? 
+        // Logic: "starts from a server or the person who won the last point"
+        // AI scored -> AI serves.
         setScores(s => {
           const newState = { ...s, ai: s.ai + 1 };
           if (newState.ai >= goal) {
@@ -345,12 +352,12 @@ export const Puzzle = ({
             setGameResult('lose');
             onFailure && onFailure({ message: 'You Lost to the Machine!' });
           } else {
-            resetBall();
+            resetBall('ai');
           }
           return newState;
         });
       } else if (state.ball.y < -BALL_SIZE) {
-        // Player Point
+        // Player Point (AI Missed) -> Player Serves Next
         setScores(s => {
           const newState = { ...s, player: s.player + 1 };
           if (newState.player >= goal) {
@@ -359,7 +366,7 @@ export const Puzzle = ({
             setGameResult('win');
             onSuccess && onSuccess({ message: 'Victory!' });
           } else {
-            resetBall();
+            resetBall('player');
           }
           return newState;
         });
